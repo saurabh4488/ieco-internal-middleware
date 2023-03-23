@@ -43,9 +43,7 @@ public interface WaitingListRepository extends JpaRepository<WaitingListDetailsE
     void deleteUser(@Param("emailId") List<String> emailId);
     
     Page<WaitingListDetailsEntity> findByIsAccessProvided(String searchTerm,Pageable pageable);
-    
-    /*@Query(value = "select from WAITINGLIST_USER_DETAILS wd where wd.REFERED_COUNT>0",nativeQuery=true)
-    List<WaitingListDetailsEntity> getReferedUsers();*/
+
 
     List<WaitingListDetailsEntity> findByReferedCountGreaterThanAndIsAccessProvidedOrderByReferedCountDesc(Integer count, String isAccessProvided);
     

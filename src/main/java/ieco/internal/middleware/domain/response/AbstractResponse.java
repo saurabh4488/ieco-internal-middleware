@@ -18,6 +18,8 @@ import java.util.Map;
  * The type Abstract response.
  */
 public abstract class AbstractResponse {
+    protected AbstractResponse() {
+    }
 
     @Autowired
     private static RedisCacheClient redisCacheClient;
@@ -199,24 +201,8 @@ public abstract class AbstractResponse {
         return ResponseEntity.ok().headers(headers).body(responseObject);
     }
 
-    /*public static <T> ResponseEntity<ResponseObject> responseEntityMultipleDataCookieSuccess(String message,
-                                                                                             ResponseCodeEnum codeEnum, List<T> attrs, HttpHeaders headers, List<String> mapKeyList) {
-        ResponseObject responseObject = new ResponseObject();
-        Map<String, Object> finMap = new HashMap<>();
-        if (attrs.size() == mapKeyList.size()) {
-            for (int i = 0; i < attrs.size(); i++) {
-                finMap.put(mapKeyList.get(i), attrs.get(i));
-            }
-        }
-        responseObject.setTimeStamp(System.currentTimeMillis());
-        responseObject.setResponseCode(codeEnum.getValue());
-        responseObject.setStatus(HttpStatus.OK.toString());
-        responseObject.setMessage(message);
-        responseObject.setAttrs(finMap);
-        return ResponseEntity.ok().headers(headers).body(responseObject);
-    }*/
 
-    public static <T> ResponseObject responseEntityMultipleDataCookieSuccess(String message, ResponseCodeEnum codeEnum, List<T> attrs, HttpHeaders headers, List<String> mapKeyList) {
+    public static <T> ResponseObject responseEntityMultipleDataCookieSuccess(String message, ResponseCodeEnum codeEnum, List<T> attrs, List<String> mapKeyList) {
         ResponseObject responseObject = new ResponseObject();
         Map<String, Object> finMap = new HashMap<>();
         if (attrs.size() == mapKeyList.size()) {
@@ -302,7 +288,7 @@ public abstract class AbstractResponse {
     }
 
 
-    public static String getMessagefromMasterV1(ResponseCodeEnum codeEnum) {
+    public static String getMessagefromMasterV1() {
         try {
             if (null != redisCacheClient) {
                 Object codeEnumVal = redisCacheClient.getObjectFromCache("ERROR_MASTER");
@@ -310,7 +296,7 @@ public abstract class AbstractResponse {
                 return objectMapper.readValue(codeEnumJson, String.class);
             }
         } catch (IOException e) {
-            //log.warn("Json parsing failed");
+            e.printStackTrace();
         }
         return "Message not available in DB";
     }
@@ -321,7 +307,7 @@ public abstract class AbstractResponse {
         responseObject.setTimeStamp(System.currentTimeMillis());
         responseObject.setResponseCode(codeEnum.getValue());
         responseObject.setStatus(HttpStatus.OK.toString());
-        responseObject.setMessage(getMessagefromMasterV1(codeEnum));
+        responseObject.setMessage(getMessagefromMasterV1());
         return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
@@ -330,7 +316,7 @@ public abstract class AbstractResponse {
         responseObject.setTimeStamp(System.currentTimeMillis());
         responseObject.setResponseCode(codeEnum.getValue());
         responseObject.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-        responseObject.setMessage(getMessagefromMasterV1(codeEnum));
+        responseObject.setMessage(getMessagefromMasterV1());
         return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
@@ -391,7 +377,7 @@ public abstract class AbstractResponse {
     }
 
     public static <T> ResponseObject responseEntityMultipleDataCookieFailure(String message,
-                                                                             ResponseCodeEnum codeEnum, List<T> attrs, HttpHeaders headers, List<String> mapKeyList) {
+                                                                             ResponseCodeEnum codeEnum, List<T> attrs, List<String> mapKeyList) {
         ResponseObject responseObject = new ResponseObject();
         Map<String, Object> finMap = new HashMap<>();
         if (attrs.size() == mapKeyList.size()) {
@@ -404,7 +390,6 @@ public abstract class AbstractResponse {
         responseObject.setStatus(HttpStatus.OK.toString());
         responseObject.setMessage(message);
         responseObject.setAttrs(finMap);
-        //return ResponseEntity.ok().headers(headers).body(responseObject);
         return responseObject;
     }
 

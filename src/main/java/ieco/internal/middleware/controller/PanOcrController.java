@@ -27,6 +27,7 @@ import java.util.List;
 
 @Controller
 public class PanOcrController {
+    public static final String ERROR = "Error";
     private Logger log = LoggerFactory.getLogger(PanOcrController.class);
     @Autowired
     private PanOcrClient panOcrClient;
@@ -66,7 +67,7 @@ public class PanOcrController {
 
     @PostMapping("/fetchDMSDocs")
     @ResponseBody
-    private HashMap<String, String> fetchDMSDocs(@RequestParam String customerId, @RequestParam String docTypeId) {
+    public HashMap<String, String> fetchDMSDocs(@RequestParam String customerId, @RequestParam String docTypeId) {
         HashMap<String, String> result = new HashMap<>();
         try {
             log.debug("fetchDMSDocs started for extraction");
@@ -92,14 +93,14 @@ public class PanOcrController {
             result.put("dmsDocId", dmsDocId);
         } catch (Exception e) {
             log.error("Error while fetchDMSDocs file for extraction", e);
-            result.put("status", "Error");
+            result.put("status", ERROR);
         }
         return result;
     }
 
     @PostMapping("/fetchPanDtls")
     @ResponseBody
-    private String sentCvlZipFileForExtraction(@RequestParam String iecoid,
+    public String sentCvlZipFileForExtraction(@RequestParam String iecoid,
                                                @RequestHeader(value = "panDownload", required = false) String panDownload,
                                                @RequestParam(value = "dmsDocId", required = false) String dmsDocId,
                                                @RequestParam(value = "fileName", required = false) String fileName,
@@ -112,7 +113,6 @@ public class PanOcrController {
                 log.debug("Sending Cvl zip file for image extraction");
                 MultipartFile zipFile = null;
                 log.info("downloading CVL zip from dms:{}", iecoid);
-                String pizzaEnumValue = "rEAdY";
                 DmsDocumentTypeEnum dmsDocumentTypeEnum
                         = DmsDocumentTypeEnum.valueOf(dmsDocumentType);
 
@@ -121,12 +121,12 @@ public class PanOcrController {
                 if (zipFile != null) {
                     return "success";
                 } else {
-                    return "Error";
+                    return ERROR;
                 }
             }
         } catch (Exception e) {
             log.error("Error while sending file for extraction", e);
-            return "Error";
+            return ERROR;
         }
     }
 
@@ -145,10 +145,7 @@ public class PanOcrController {
                     log.info("Folder is not created at the path....creating folder at path for {}", customerId);
                     new File(realPathtoUploads).mkdir();
                 }
-                String orgName = multipartFile.getOriginalFilename();
-                String filePath = realPathtoUploads + orgName;
-                File dest = new File(filePath);
-                //multipartFile.transferTo(dest);
+
                 dmsIntegrationClient.uploadDocuments("", multipartFile, dmsDocumentType, Integer.parseInt(customerId));
             }
         } catch (Exception e) {

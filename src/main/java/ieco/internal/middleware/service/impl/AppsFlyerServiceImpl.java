@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AppsFlyerServiceImpl extends AbstractResponse {
-    private Logger log = LoggerFactory.getLogger(AppsFlyerServiceImpl.class);
 
     public ResponseObject pushApIService(AppsFlyerPushRequest appsFlyerPushRequest) {
         return responseSuccess("Records fetched successfully", ResponseCodeEnum.DATA_FOUND, appsFlyerPushRequest,"data");

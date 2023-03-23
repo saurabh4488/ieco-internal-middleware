@@ -10,10 +10,10 @@ import java.util.concurrent.TimeUnit;
 public interface RedisCacheClient {
 
     @PostMapping("/putObjectInCacheWithKey")
-    <T> void putObjectInCache(@RequestParam("masterKey") String masterKey, @RequestBody Object object);
+    public void putObjectInCache(@RequestParam("masterKey") String masterKey, @RequestBody Object object);
 
     @PostMapping("/putObjectInCacheWithMapNameAndKey")
-    <T> void putObjectInCache(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String masterKey, @RequestBody Object object);
+    public void putObjectInCache(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String masterKey, @RequestBody Object object);
 
     @PostMapping("/putObjectInCacheWithKeyWithParam")
     <T> void putObjectInCacheWithKeyWithParam(@RequestParam("masterKey") String masterKey, @RequestParam("data") T object);
@@ -22,10 +22,10 @@ public interface RedisCacheClient {
     <T> void putObjectInCacheWithMapNameAndKeyWithParam(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String masterKey, @RequestParam("data") T object);
 
     @PostMapping("/putObjectInCacheWithKeyWithEvictTime")
-    <T> void putObjectInCacheWithEvictTime(@RequestParam("masterKey") String masterKey, @RequestBody Object object, @RequestParam("timeout") long timeout, @RequestParam("timeUnit") TimeUnit timeUnit);
+    public void putObjectInCacheWithEvictTime(@RequestParam("masterKey") String masterKey, @RequestBody Object object, @RequestParam("timeout") long timeout, @RequestParam("timeUnit") TimeUnit timeUnit);
 
     @PostMapping("/putObjectInCacheWithMapNameAndKeyWithEvictTime")
-    <T> void putObjectInCacheWithEvictTime(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String masterKey, @RequestBody Object object, @RequestParam("timeout") long timeout, @RequestParam("timeUnit") TimeUnit timeUnit);
+    public void putObjectInCacheWithEvictTime(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String masterKey, @RequestBody Object object, @RequestParam("timeout") long timeout, @RequestParam("timeUnit") TimeUnit timeUnit);
 
     @PostMapping("/putObjectInCacheWithKeyWithParamWithEvictTime")
     <T> void putObjectInCacheWithKeyWithParamWithEvictTime(@RequestParam("masterKey") String masterKey, @RequestParam("data") T object, @RequestParam("timeout") long timeout, @RequestParam("timeUnit") TimeUnit timeUnit);

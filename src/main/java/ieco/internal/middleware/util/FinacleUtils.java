@@ -1,5 +1,7 @@
 package ieco.internal.middleware.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -8,9 +10,11 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.Base64;
 
+@Slf4j
 public class FinacleUtils {
 
 	private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
+	public static final String KEY = "a97d90a4cf744e7c95993bbb1849420e";
 
 	public static String encrypt(String message, String key)
 			throws GeneralSecurityException, UnsupportedEncodingException {
@@ -88,10 +92,10 @@ public class FinacleUtils {
 
 	public static void main(String[] args) throws GeneralSecurityException, IOException {
         String encrypted = "v/QYSewL2nC1QQP19DOB9Fuj/f3WCPVR95nFzxrU+nlf2chf0sJ49OY4p6Ggz1Mnu6WBfPZW0Mq/wkJ785TRZC0JoOVx904r2qVHUwPOiNqiEBxQe3VUjv38ocY0dJXJQiqRN7ufOwVN1o8OzjpWJsT9lLZRTu28RM/iYDiuM0L6KlCkK7nH/9Mlz9f0YYUJLagN1UpFNVnGh/wBgWh7H6jYfzbgiC6kHZ8Mxegn1RHKPW5hYzlqIKJrz5Y6b8qokI1pMklCrTgkbdop830x7GRLCoGRxmtQswOFL6hxo+gYiTzfp+Ku3SWZinZjQSWGNJ3h0kbIfwuvJubv/sx8zvj2y3yU2XnzV48J/OrQNNdYJz7CUAfV/+LGyhf/MvnDh3Sxro42nsELHvSf1r5cFihqfdU7kGyIdbgv0NBYeSE48KAiwAfeiZQix2Gb4zVpk4Stfy4bBqBp4ig/kvL/N2f1qgMHLxygLNTs4+5Ymkiz/GniCIfDyqnOT4Col/vA";
-        System.out.println(decrypt(encrypted,"a97d90a4cf744e7c95993bbb1849420e"));
+        log.info(decrypt(encrypted, KEY));
        String singleline="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><kmblRoot><Input><MTI>CVV2GENREQ</MTI><CRN>4594532220000034</CRN><Dateandtimelocaltransaction>40920201547</Dateandtimelocaltransaction><RRN>24815155929</RRN><Expirydate>1224</Expirydate><ChannelID>MB</ChannelID></Input></kmblRoot>";
                
-       System.out.println("singleline->"+encrypt(singleline,"a97d90a4cf744e7c95993bbb1849420e"));
+       log.info("singleline->"+encrypt(singleline, KEY));
        String actualRequest ="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n" + 
                "<kmblRoot>\r\n" + 
                "    <Input>\r\n" + 
@@ -104,7 +108,7 @@ public class FinacleUtils {
                "    </Input>\r\n" + 
                "</kmblRoot>\r\n" + 
                "";
-       System.out.println("ogRequest->"+encrypt(actualRequest,"a97d90a4cf744e7c95993bbb1849420e"));
+       log.info("ogRequest->"+encrypt(actualRequest, KEY));
         
         
 	}

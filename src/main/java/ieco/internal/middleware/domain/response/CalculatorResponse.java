@@ -30,8 +30,8 @@ public class CalculatorResponse {
 	private double returnPercent;
 
 	private String sipReturn;
-	private ArrayList sipReturnList;
-	private ArrayList sipReturnListForSIXPercent;
+	private ArrayList<Object> sipReturnList;
+	private ArrayList<Object> sipReturnListForSIXPercent;
 	private double lumpsumAmount;
 
 	private double lumpsumReturn;

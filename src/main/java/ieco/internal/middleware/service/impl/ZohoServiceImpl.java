@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 @Service
 public class ZohoServiceImpl extends AbstractResponse implements ZohoService {
@@ -74,10 +75,10 @@ public class ZohoServiceImpl extends AbstractResponse implements ZohoService {
             CustomerTypeRequest customerTypeRequest = new CustomerTypeRequest();
             if (contactCreationReq.getEmail() != null) {
                 customerTypeRequest.setEmailId(contactCreationReq.getEmail());
-                ResponseEntity customerType = helperService.getCustomerType(customerTypeRequest);
+                ResponseEntity<HashMap<String,String>> customerType = helperService.getCustomerType(customerTypeRequest);
                 log.info("Customer Type  :{}", customerType);
                 if (customerType != null && customerType.getBody() != null) {
-                    log.info("Customer Type  :{}", customerType.getBody().toString());
+                    log.info("Customer Type  :{}", customerType.getBody());
                     DeskContactCreationCustomFields cf = null;
                     if (contactCreationReq.getCf() != null) {
                         cf = contactCreationReq.getCf();
@@ -90,7 +91,7 @@ public class ZohoServiceImpl extends AbstractResponse implements ZohoService {
             }
         } catch (Exception exception) {
             exception.printStackTrace();
-            log.error("Exception in contactCreation for CustomerType" + exception.getLocalizedMessage());
+            log.error("Exception in contactCreation for CustomerType : {}",exception.getLocalizedMessage());
         }
         ZohoContactCreationResponse res = zohoClient.contactCreate(contactCreationReq);
 
@@ -115,18 +116,8 @@ public class ZohoServiceImpl extends AbstractResponse implements ZohoService {
         BeanUtils.copyProperties(request, ticketUpdateDetails);
         ticketUpdateDetails.setIsPushedToZoho("N");
         tpRepository.save(ticketUpdateDetails);
-        TicketUpdateResponse ticketRes = zohoClient.getTicket(String.valueOf(request.getTicketId()));
 
 
-        ZohoTicketUpdateRequest zohoTicketUpdateRequest = ZohoTicketUpdateRequest.builder()
-                .cf(DeskContactCreationCustomFields.builder().cf_attempt(request.getAttempt())
-                        .cf_connected_date(formatDate(request.getConnectedDate()))
-                        .cf_first_call_date(formatDate(request.getFirstCallDate()))
-                        .cf_device_type(request.getPlatformType())
-                        .cf_disposition(request.getDisposition())
-                        .cf_remarks(request.getRemarks())
-                        .build()).build();
-        TicketUpdateResponse tcResponse = zohoClient.ticketUpdate(zohoTicketUpdateRequest, String.valueOf(request.getTicketId()));
         return responseSuccess("Updated successfully", ResponseCodeEnum.DETAILS_UPADTED_SUCCESSFULLY, String.valueOf(request.getTicketId()));
 
 

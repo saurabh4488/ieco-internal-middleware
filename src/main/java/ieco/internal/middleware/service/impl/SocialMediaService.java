@@ -26,6 +26,9 @@ import java.util.*;
 @Service
 public class SocialMediaService extends AbstractResponse {
 
+    public static final String DETAILS_UPDATED_SUCCESSFULLY = "Details Updated successfully";
+    public static final String PROVIDE_VALID_TOKEN = "Please provide valid token!";
+    public static final String AUTHENTICATION_IS_REQUIRED_TO_ACCESS_THIS_RESOURCE = "Authentication is required to access this resource!";
     @Autowired
     private SocialMediaUsersRepository socialMediaUsersRepository;
 
@@ -76,13 +79,13 @@ public class SocialMediaService extends AbstractResponse {
             socialMediaUsersRepository.save(data);
 
             
-            responseObject = responseSuccess("Details Updated successfully",
+            responseObject = responseSuccess(DETAILS_UPDATED_SUCCESSFULLY,
                     ResponseCodeEnum.DETAILS_UPADTED_SUCCESSFULLY);
             return responseObject;
         } catch (Exception e) {
             e.printStackTrace();
             log.info("Contact creation Failed for saveSocialMediaUser {}", request);
-            log.error("Exception in saveSocialMediaUser {}", e);
+            log.error("Exception in saveSocialMediaUser {}", e.getLocalizedMessage());
             responseObject = responseError("Error While save SocialMediaUser Details",
             		ResponseCodeEnum.TECHNICAL_FAILURE);
         }
@@ -124,9 +127,9 @@ public class SocialMediaService extends AbstractResponse {
             data.setLeadVerified("Y");
             socialMediaUsersRepository.save(data);
         } catch (Exception e) {
-        	log.error("error while setting lead verified flag {}",e);
+        	log.error("error while setting lead verified flag {}",e.getLocalizedMessage());
         }
-        return responseSuccess("Details Updated successfully",
+        return responseSuccess(DETAILS_UPDATED_SUCCESSFULLY,
                 ResponseCodeEnum.DETAILS_UPADTED_SUCCESSFULLY);
 
     }
@@ -137,7 +140,7 @@ public class SocialMediaService extends AbstractResponse {
             if (validateToken(token)) {
                 HttpHeaders headers = null;
                 List<String> mapKeyList = new ArrayList<String>();
-                List<Object> attrList = new ArrayList<Object>();
+                List<Object> attrList;
                 List<SocialMediaContent> socialMediaContentList = socialMediaContentRepository.findByIsActive("Y");
                 List<SocialMediaContent> allData = new ArrayList<>();
                 for (SocialMediaContent socialMediaContent:socialMediaContentList) {
@@ -152,12 +155,12 @@ public class SocialMediaService extends AbstractResponse {
                 mapKeyList.addAll(Arrays.asList("records"));
                 attrList = Arrays.asList(allData);
                 return responseEntityMultipleDataCookieSuccess("Records fetched successfully!",
-                        ResponseCodeEnum.ACCESS_PROVIDED, attrList, headers, mapKeyList);
+                        ResponseCodeEnum.ACCESS_PROVIDED, attrList, mapKeyList);
             }
-            return responseError("Please provide valid token!", ResponseCodeEnum.EMAIL_NOT_EXISTS);
+            return responseError(PROVIDE_VALID_TOKEN, ResponseCodeEnum.EMAIL_NOT_EXISTS);
         }
 
-        return responseError("Authentication is required to access this resource!", ResponseCodeEnum.EMAIL_NOT_EXISTS);
+        return responseError(AUTHENTICATION_IS_REQUIRED_TO_ACCESS_THIS_RESOURCE, ResponseCodeEnum.EMAIL_NOT_EXISTS);
     }
     
     public ResponseObject saveDetails(DigitalLandingStaticContentVO req, String token) {
@@ -171,7 +174,7 @@ public class SocialMediaService extends AbstractResponse {
              SocialMediaContent data = entityData.get();
              BeanUtils.copyProperties(req, data);
              socialMediaContentRepository.save(data);
-             return responseSuccess("Details Updated successfully",
+             return responseSuccess(DETAILS_UPDATED_SUCCESSFULLY,
                      ResponseCodeEnum.DETAILS_UPADTED_SUCCESSFULLY);
          }else {
         	 log.info("cid not found and inserting as new cid...");
@@ -184,9 +187,9 @@ public class SocialMediaService extends AbstractResponse {
          }
          
 			}
-			return responseError("Please provide valid token!", ResponseCodeEnum.EMAIL_NOT_EXISTS);
+			return responseError(PROVIDE_VALID_TOKEN, ResponseCodeEnum.EMAIL_NOT_EXISTS);
     	}
-    	return responseError("Authentication is required to access this resource!", ResponseCodeEnum.EMAIL_NOT_EXISTS); 
+    	return responseError(AUTHENTICATION_IS_REQUIRED_TO_ACCESS_THIS_RESOURCE, ResponseCodeEnum.EMAIL_NOT_EXISTS);
     }
     
     public ResponseObject deleteCID(String cid,String token) {
@@ -205,17 +208,15 @@ public class SocialMediaService extends AbstractResponse {
         return responseSuccess("Details not found with given cid",
                 ResponseCodeEnum.DATA_NOT_FOUND);
 			}
-			return responseError("Please provide valid token!", ResponseCodeEnum.EMAIL_NOT_EXISTS);
+			return responseError(PROVIDE_VALID_TOKEN, ResponseCodeEnum.EMAIL_NOT_EXISTS);
     	}
-    	return responseError("Authentication is required to access this resource!", ResponseCodeEnum.EMAIL_NOT_EXISTS); 
+    	return responseError(AUTHENTICATION_IS_REQUIRED_TO_ACCESS_THIS_RESOURCE, ResponseCodeEnum.EMAIL_NOT_EXISTS);
    }
     
     boolean validateToken(String token) {
 		Optional<AdminDetails> adminDetails = adminDetailsRepository.findByToken(token);
-		if (adminDetails.isPresent()) {
-			if (adminDetails.get().getToken().equals(token)) {
+		if (adminDetails.isPresent() && adminDetails.get().getToken().equals(token)) {
 				return true;
-			}
 		}
 		return false;
 	}

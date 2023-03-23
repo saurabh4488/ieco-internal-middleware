@@ -37,13 +37,13 @@ public class OtpServiceimpl {
 
 		ResponseEntity<String> otpResponse = restTemplate.postForEntity("",
 				new HttpEntity<OtpRequest>(otpReq, httpHeaders), String.class);
-		log.info("OTP Validation response from PwC " + otpResponse.getBody());
+		log.info("OTP Validation response from PwC : {}",otpResponse.getBody());
 		JsonNode actualObj = new ObjectMapper().readTree(otpResponse.getBody());
 		if (actualObj.get("status").asText().equalsIgnoreCase("200 ok")) {
-			System.out.println("Successfully verify the otp");
+			log.info("Successfully verify the otp");
 			return true;
 		} else {
-System.out.println("OTP verification failed");
+log.info("OTP verification failed");
 
 return false;
 		}

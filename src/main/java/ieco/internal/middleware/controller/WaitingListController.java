@@ -32,8 +32,7 @@ public class WaitingListController {
 	
 	@Autowired
 	private SocialMediaService socialMediaService;
-	/*@Autowired
-	private UpdateWaitingList updateWaitingList;*/
+
 
 	@PostMapping(value = "/getWaitingListNumber")
 	public ResponseEntity<ResponseObject> getWaitingListNumber(@Valid @RequestBody IncomingEmail email) {
@@ -139,7 +138,6 @@ public class WaitingListController {
 	public ResponseEntity<ResponseObject> login(@Valid @RequestBody IncomingEmail request) {
 		log.info("request for admin {}", request);
 		if (new NullCheck<>(request).allNotNull(request.getEmail(), request.getPassword()).isNotNull()) {
-			// request.setPassword(CommonUtils.decryptFrontEndPassword(request.getPassword()));
 			return new ResponseEntity<>(waitingListService.login(request), HttpStatus.OK);
 		}
 		return AbstractResponse.responseEntityError("Body must not be blank or empty",
@@ -175,33 +173,14 @@ public class WaitingListController {
 			@RequestHeader(value = "token", required = true) String token) {
 		log.info("request for generateCsvResponse started");
 		waitingListService.generateCsvResponse(response, token);
-		// return new ResponseEntity<>(waitingListService.logout(request,token),
-		// HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/debounceCheck")
 	public ResponseEntity<ResponseObject> debounceCheck(@RequestParam("cid") String cid) {
 		log.info("request for debounceCheck {}", cid);
 		return new ResponseEntity<>(socialMediaService.getSocialMediaContent(cid), HttpStatus.OK);
-		// return new ResponseEntity<>(waitingListService.logout(request,token),
-		// HttpStatus.OK);
+
 	}
-
-	/*@GetMapping(value = "/updateWaitingList")
-	public void updateWaitingList() {
-		log.info("request for updateWaitingList started");
-		updateWaitingList.createFileForDebounceCheck();
-		// return new ResponseEntity<>(waitingListService.logout(request,token),
-		// HttpStatus.OK);
-	}*/
-
-	/*@GetMapping(value = "/upload")
-	public String updateWaitingList() {
-		log.info("request for updateWaitingList started");
-		return updateWaitingList.initiateFileuploadToSFTP();
-		// return new ResponseEntity<>(waitingListService.logout(request,token),
-		// HttpStatus.OK);
-	}*/
 	
 	@PostMapping(value = "/reduceWaitListNumber")
 	public ResponseEntity<ResponseObject> reduceWaitingListNumber(@RequestParam("limit") String limit,@RequestHeader(value = "token", required = true) String token){

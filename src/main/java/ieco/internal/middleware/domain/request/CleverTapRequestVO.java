@@ -17,11 +17,7 @@ public class CleverTapRequestVO {
 	@JsonProperty("profiles")
 	private List<Profile> profiles;
 	
-	@Getter
-	@Setter
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@ToString
+
 	public static class Profile {
 
 		@JsonProperty("key_values")
@@ -37,12 +33,7 @@ public class CleverTapRequestVO {
 		
 	}
 	
-	@Getter
-	@Setter
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@ToString
-	public static class KeyValues {
+		public static class KeyValues {
 
 		@JsonProperty("customerId")
 		private String customerId;

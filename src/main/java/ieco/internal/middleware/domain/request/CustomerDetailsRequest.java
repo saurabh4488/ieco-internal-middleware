@@ -17,12 +17,5 @@ public class CustomerDetailsRequest {
 	
 	private int customerId;
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	/*@Override
-	public String toString() {
-		return "CustomerDetailsRequest [customerEmail=" + customerEmail + ", customerId=" + customerId + "]";
-	}*/
-	
+
 }

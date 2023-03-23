@@ -1893,7 +1893,7 @@ public enum ResponseCodeEnum {
 	/**
 	 * De fetch predefined stock basket failure response code enum.
 	 */
-	DE_FETCH_SPECIFIC_PREDEFINED_STOCK_BASKET_EXCEPTION("DER096"),
+	DE_FETCH_SPECIFIC_PREDEFINED_STOCK_BASKET_EXCEPTION(Constants.DER_096),
 
 	/**
 	 * De add journey failure response code enum.
@@ -1990,7 +1990,7 @@ public enum ResponseCodeEnum {
 	/**
 	 * De order book exception response code enum.
 	 */
-	DE_ORDER_BOOK_EXCEPTION("DER096"),
+	DE_ORDER_BOOK_EXCEPTION(Constants.DER_096),
 	/**
 	 * De trade book success response code enum.
 	 */
@@ -2023,7 +2023,7 @@ public enum ResponseCodeEnum {
 	/**
 	 * Fetch transaction exception response code enum.
 	 */
-	FETCH_TRANSACTION_EXCEPTION("DER096"),
+	FETCH_TRANSACTION_EXCEPTION(Constants.DER_096),
 	/**
 	 * Get open position failure response code enum.
 	 */
@@ -2743,5 +2743,9 @@ public enum ResponseCodeEnum {
 	 */
 	public String getValue() {
 		return value;
+	}
+
+	private static class Constants {
+		public static final String DER_096 = "DER096";
 	}
 }

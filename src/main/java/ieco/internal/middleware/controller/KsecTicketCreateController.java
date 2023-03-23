@@ -17,7 +17,7 @@ public class KsecTicketCreateController {
 	private KsecQueryCreationService ksecQueryCreationService;
 
 	@PostMapping("/ksec/tickets/queryInsert")
-	KsecTicketCreationResponse ksecQueryCreate(
+	public KsecTicketCreationResponse ksecQueryCreate(
 			@RequestBody @Valid KsecTicketCreationRequest ksecTicketCreationRequest) {
 		return ksecQueryCreationService.createTicket(ksecTicketCreationRequest);
 	}

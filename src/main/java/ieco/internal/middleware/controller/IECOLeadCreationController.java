@@ -24,7 +24,7 @@ public class IECOLeadCreationController {
 	private DeskContactCreationService DeskContactCreationService;
 	
 	@PostMapping("/zoho/contacts")
-	ZohoContactCreationResponse leadCreate(@RequestBody @Valid IECOLeadCreationRequest iecoLeadCreationRequest ){
+	public ZohoContactCreationResponse leadCreate(@RequestBody @Valid IECOLeadCreationRequest iecoLeadCreationRequest ){
 		if(isZohoEnable) {
 			return DeskContactCreationService.contactCreation(iecoLeadCreationRequest);
 		} else {

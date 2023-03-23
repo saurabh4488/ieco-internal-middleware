@@ -16,9 +16,6 @@ public class WhatsAppChatRequest {
   @NotBlank(message = "Product Category is mandatory")
   private String productCategory;
 
-  /*
-   * @NotBlank(message = "Issue Description is mandatory") private String issueDescription;
-   */
 
   @JsonAlias("iecoId")
   @NotBlank(message = "IECO ID is mandatory")

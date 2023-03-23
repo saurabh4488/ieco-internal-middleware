@@ -17,13 +17,13 @@ public class DigiLockerController {
 	private DigiLockerService digiLockerService;
 	
 	@GetMapping("/retrieveAuthorizationUrl")
-	ResponseEntity<ResponseObject> getAuthorizationEndpoint(@RequestParam("clientId") String clientId,@RequestParam("redirecturl") String redirectURL) {
+	public ResponseEntity<ResponseObject> getAuthorizationEndpoint(@RequestParam("clientId") String clientId,@RequestParam("redirecturl") String redirectURL) {
 		
 		return new ResponseEntity<>(digiLockerService.retrieveAuthorizationUrl(clientId,redirectURL), HttpStatus.OK);
 	}
 	
 	@PostMapping("/getCustomerData")
-	ResponseObject getCustomerData(@RequestBody @Valid DgCustomerReqVO req) {
+	public ResponseObject getCustomerData(@RequestBody @Valid DgCustomerReqVO req) {
 		return digiLockerService.getCustomerData(req);
 	}
 }

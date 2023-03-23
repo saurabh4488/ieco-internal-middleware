@@ -8,7 +8,7 @@ public class PdfPageEvent extends PdfPageEventHelper {
 	private PdfTemplate t;
 	private Image total;
 
-    public void onOpenDocument(PdfWriter writer, Document document) {
+    public void onOpenDocument(PdfWriter writer) {
         t = writer.getDirectContent().createTemplate(30, 16);
         try {
             total = Image.getInstance(t);
@@ -52,7 +52,6 @@ public class PdfPageEvent extends PdfPageEventHelper {
             footer.getDefaultCell().setBorderColor(BaseColor.LIGHT_GRAY);
 
             // add copyright
-           // footer.addCell(new Phrase("\u00A9 kotakcherry.com", new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD)));
 
             // add current page count
             footer.getDefaultCell().setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -74,7 +73,7 @@ public class PdfPageEvent extends PdfPageEventHelper {
         }
     }
     
-    public void onCloseDocument(PdfWriter writer, Document document) {
+    public void onCloseDocument(PdfWriter writer) {
         int totalLength = String.valueOf(writer.getPageNumber()).length();
         int totalWidth = totalLength * 5;
         ColumnText.showTextAligned(t, Element.ALIGN_RIGHT,

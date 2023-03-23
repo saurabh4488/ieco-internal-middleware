@@ -751,7 +751,6 @@ public class CustomerConstants {
 	/**
 	 * The constant KIAL_KRA_STAT_MODIFICATION_REINITIATED.
 	 */
-//	public static final String KIAL_KRA_STAT_MODIFICATION_REINITIATED = "MODIFICATION_REINITIATED";
 
 	/**
 	 * The constant CVL_KRA_STAT_WAIT.

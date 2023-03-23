@@ -20,12 +20,7 @@ public class WhatsAppMediaRequest {
   @JsonProperty("profiles")
   private List<Profile> profiles;
 
-  @Getter
-  @Setter
-  @AllArgsConstructor
-  @NoArgsConstructor
-  @ToString
-  public static class Profile {
+    public static class Profile {
 
     @JsonProperty("key_values")
     private KeyValues keyValues;
@@ -40,12 +35,7 @@ public class WhatsAppMediaRequest {
 
   }
 
-  @Getter
-  @Setter
-  @AllArgsConstructor
-  @NoArgsConstructor
-  @ToString
-  public static class KeyValues {
+    public static class KeyValues {
 
     // @NotBlank(message = "customerId is mandatory")
     private String customerId;

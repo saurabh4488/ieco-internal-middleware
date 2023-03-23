@@ -27,6 +27,7 @@ import java.util.Date;
 public class OtpService {
 
     private static final String DEFAULT_DEPARTMENT = "KIAL";
+    public static final String OK = "200 OK";
     private org.slf4j.Logger log = LoggerFactory.getLogger(OtpService.class);
 
     /**
@@ -93,7 +94,6 @@ public class OtpService {
             responseObject.setMessage(CustomerConstants.UNAUTHORIZED);
             return new ResponseEntity<>(responseObject, HttpStatus.UNAUTHORIZED);
         }
-//		ResponseEntity<ResponseObject> resEntity = iecoCustomerClient.initiateTransaction(req);
         log.info("InitiateTransactionRespone received from PwC {}", resEntity.getBody());
         return resEntity;
 
@@ -111,7 +111,6 @@ public class OtpService {
             responseObject.setMessage(CustomerConstants.UNAUTHORIZED);
             return new ResponseEntity<>(responseObject, HttpStatus.UNAUTHORIZED);
         }
-//		ResponseEntity<ResponseObject> resEntity = otpClient.otpGenerate(req);
         log.info("otpGenerate Respone received from PwC {}", resEntity.getBody());
         return resEntity;
     }
@@ -165,20 +164,9 @@ public class OtpService {
 
             TicketCreationRequest tcRequest = new TicketCreationRequest();
             DeskContactCreationCustomFields cf = new DeskContactCreationCustomFields();
-            // String department = DepartmentUtil.getdepartment(middlewareRequest.getProductCategory());
 
 
             cf.setCf_environment(environment);
-            /*
-             * if (department.equalsIgnoreCase("K-Sec")) { cf.setCf_replicate_to_ksec_crm("Yes");
-             * cf.setCf_sr_nature(""); cf.setCf_send_sms_1("No"); cf.setCf_calling_done("Yes");
-             * cf.setCf_remarks(middlewareRequest.getIssueDescription()); tcRequest.setPriority("High"); }
-             * if (department.equalsIgnoreCase("K-Bank")) { cf.setCf_replicate_to_siebel("No");
-             * cf.setCf_sr_nature("Request"); cf.setCf_sr_product("Retail Liabilities");
-             * cf.setCf_send_email("Yes"); cf.setCf_summary(middlewareRequest.getIssueDescription());
-             * tcRequest.setPriority("High"); }
-             */
-
 
             cf.setCf_sr_nature("FTR");
             tcRequest.setPriority("Medium");
@@ -200,11 +188,11 @@ public class OtpService {
             tcRequest.setChannel("Chatbot");
             TicketCreationResponse responseEntity = zohoClient.ticketCreate(tcRequest);
             log.info("Ticket created successfully res {}", responseEntity);
-            responseEntity.setStatus("200 OK");
+            responseEntity.setStatus(OK);
             return responseEntity;
         }
 
-        return TicketCreationResponse.builder().status("200 OK")
+        return TicketCreationResponse.builder().status(OK)
                 .message("User has been satisfied with bot reply").build();
 
     }
@@ -242,7 +230,7 @@ public class OtpService {
 
         CustomerDetailsResponse custRes =
                 getCustomerdetails(middlewareRequest.getTempCustomerId(), middlewareRequest.getEmail());
-        if (custRes.getStatus().equalsIgnoreCase("200 OK")) { // check customer or not
+        if (custRes.getStatus().equalsIgnoreCase(OK)) { // check customer or not
 
 
             log.info("Customer Found in IECO platform");
@@ -256,20 +244,7 @@ public class OtpService {
                 String contactId = searchContactRes.getContactResponse().get(0).getId();
                 String iecoId = Long.toString(custRes.getAttrs().getUserDetails().getCustomerId());
                 return (T) createTicket(middlewareRequest, contactId, iecoId);
-            } /*
-             * else { contactCreationRes = contactCreation( formContactCreationRequest(custRes,
-             * middlewareRequest, "contact"));
-             *
-             * String iecoId = Long.toString(custRes.getAttrs().getUserDetails().getCustomerId());
-             *
-             * if (restUtility.checkStatus(contactCreationRes)) { String contactId = new
-             * ObjectMapper().readTree(contactCreationRes.getBody()).get("id").asText(); return (T)
-             * createTicket(middlewareRequest, contactId, iecoId);
-             *
-             * }
-             *
-             * }
-             */
+            }
         } // customer details if
 
         else {
@@ -330,7 +305,7 @@ public class OtpService {
         log.info("zoho attachment file name {}", file.getName());
         ZohoAttachmentResponse attachmentRes = zohoClient.ticketAttachment(file, id);
         log.info("zoho attachment api response {}", attachmentRes);
-        attachmentRes.setStatus("200 OK");
+        attachmentRes.setStatus(OK);
         return attachmentRes;
     }
 }

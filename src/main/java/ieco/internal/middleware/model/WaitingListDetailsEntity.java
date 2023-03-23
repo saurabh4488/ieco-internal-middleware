@@ -43,9 +43,6 @@ public class WaitingListDetailsEntity implements Serializable {
 	@Column(name = "REF_CODE")
 	private String referenceCode;
 
-	/*
-	 * @Column(name = "WAITING_LIST_NUMBER") private String waitingNumber;
-	 */
 
 	@Column(name = "LINKEDIN_URL")
 	private String linkedinURL;
@@ -101,6 +98,4 @@ public class WaitingListDetailsEntity implements Serializable {
 	@Column(name = "INVITATION_URL")
 	private String invitationURL;
 	
-	/*@Column(name= "IS_EMAIL_VALID")
-	private String isEmailValid;*/
-}
+	}

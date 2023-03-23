@@ -15,6 +15,8 @@ import org.springframework.util.StringUtils;
 @Component
 public class CustomerUtil {
 
+  public static final String IECO_ID_RECEIVED_FROM_CLEVERTAP_IS_NULL = "IECO ID received from clevertap is null ";
+  public static final String CUSTOMER_DETAILS_RESPONSE_FROM_PW_C = "CustomerDetailsResponse from PwC {}";
   private Logger log = LoggerFactory.getLogger(CustomerUtil.class);
 
   @Autowired
@@ -24,7 +26,7 @@ public class CustomerUtil {
     String custId = creq.getProfiles().get(0).getKeyValues().getCustomerId();
     CustomerDetailsRequest customerDetailsReq = new CustomerDetailsRequest();
     if (StringUtils.isEmpty(custId) || custId.equals("-1")) {
-      log.info("IECO ID received from clevertap is null ");
+      log.info(IECO_ID_RECEIVED_FROM_CLEVERTAP_IS_NULL);
 
       customerDetailsReq.setCustomerEmail(creq.getProfiles().get(0).getEmail());
     } else {
@@ -35,7 +37,7 @@ public class CustomerUtil {
         iecoCustomerClient.getCustomerDetails(customerDetailsReq);
 
     CustomerDetailsResponse custDetailsRes = custDetailsResEntity.getBody();
-    log.info("CustomerDetailsResponse from PwC {}", custDetailsRes);
+    log.info(CUSTOMER_DETAILS_RESPONSE_FROM_PW_C, custDetailsRes);
     return custDetailsRes;
   }
 
@@ -43,7 +45,7 @@ public class CustomerUtil {
     String custId = creq.getProfiles().get(0).getKeyValues().getCustomerId();
     CustomerDetailsRequest customerDetailsReq = new CustomerDetailsRequest();
     if (StringUtils.isEmpty(custId) || custId.equals("-1")) {
-      log.info("IECO ID received from clevertap is null ");
+      log.info(IECO_ID_RECEIVED_FROM_CLEVERTAP_IS_NULL);
 
       customerDetailsReq.setCustomerEmail(creq.getProfiles().get(0).getEmail());
     } else {
@@ -54,7 +56,7 @@ public class CustomerUtil {
             iecoCustomerClient.getCustomerDetails(customerDetailsReq);
 
     CustomerDetailsResponse custDetailsRes = custDetailsResEntity.getBody();
-    log.info("CustomerDetailsResponse from PwC {}", custDetailsRes);
+    log.info(CUSTOMER_DETAILS_RESPONSE_FROM_PW_C, custDetailsRes);
     return custDetailsRes;
   }
 
@@ -68,7 +70,7 @@ public class CustomerUtil {
         iecoCustomerClient.getCustomerDetails(customerDetailsReq);
 
     CustomerDetailsResponse custDetailsRes = custDetailsResEntity.getBody();
-    log.info("CustomerDetailsResponse from PwC {}", custDetailsRes);
+    log.info(CUSTOMER_DETAILS_RESPONSE_FROM_PW_C, custDetailsRes);
     return custDetailsRes.getAttrs().getUserDetails().getCustomerId();
   }
 
@@ -76,7 +78,7 @@ public class CustomerUtil {
 
     CustomerDetailsRequest customerDetailsReq = new CustomerDetailsRequest();
     if (StringUtils.isEmpty(customerId) || customerId.equals("-1")) {
-      log.info("IECO ID received from clevertap is null ");
+      log.info(IECO_ID_RECEIVED_FROM_CLEVERTAP_IS_NULL);
 
       customerDetailsReq.setCustomerEmail(email);
     } else {
@@ -87,7 +89,7 @@ public class CustomerUtil {
         iecoCustomerClient.getCustomerDetails(customerDetailsReq);
 
     CustomerDetailsResponse custDetailsRes = custDetailsResEntity.getBody();
-    log.info("CustomerDetailsResponse from PwC {}", custDetailsRes);
+    log.info(CUSTOMER_DETAILS_RESPONSE_FROM_PW_C, custDetailsRes);
     return custDetailsRes;
   }
 }

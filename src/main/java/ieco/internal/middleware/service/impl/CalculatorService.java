@@ -13,6 +13,8 @@ import java.util.ArrayList;
 @Component
 public class CalculatorService {
 
+	public static final String IN_CALC_CONTROLLER_MONTHLYTAKE = "in Calc Controller monthlytake";
+	public static final String SUCCESS = "Success";
 	private org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public CalculatorResponse calculate(CalculatorRequest req) {
@@ -23,13 +25,13 @@ public class CalculatorService {
 			log.info("in Calc Controller crorepati");
 			return crorePati(req);
 		} else if (req.getType().equalsIgnoreCase("monthlytake")) {
-			log.info("in Calc Controller monthlytake");
+			log.info(IN_CALC_CONTROLLER_MONTHLYTAKE);
 			return monthlyTake(req);
 		} else if (req.getType().equalsIgnoreCase("retirement")) {
-			log.info("in Calc Controller monthlytake");
+			log.info(IN_CALC_CONTROLLER_MONTHLYTAKE);
 			return retirement(req);
 		} else if (req.getType().equalsIgnoreCase("expense")) {
-			log.info("in Calc Controller monthlytake");
+			log.info(IN_CALC_CONTROLLER_MONTHLYTAKE);
 			return expense(req);
 		}
 		CalculatorResponse calculatorRes = new CalculatorResponse();
@@ -109,7 +111,7 @@ public class CalculatorService {
 		// Double.parseDouble(total_return)
 		calculatorRes.setType(calculatorReq.getType());
 
-		calculatorRes.setStatus("Success");
+		calculatorRes.setStatus(SUCCESS);
 		return calculatorRes;
 	}
 
@@ -142,15 +144,15 @@ public class CalculatorService {
 		calculatorRes.setPeriod(period);
 		calculatorRes.setSipReturn(BigDecimal.valueOf(inputAmt).toPlainString());
 		calculatorRes
-				.setInflationAdjustedAmount(new BigDecimal(inflationAdjustedAmount).setScale(0, RoundingMode.HALF_UP));
+				.setInflationAdjustedAmount(BigDecimal.valueOf(inflationAdjustedAmount).setScale(0, RoundingMode.HALF_UP));
 		calculatorRes.setReturnPercent(round(calculatorReq.getRateOfInterest(), 0));
 		calculatorRes.setReturnPercentPerMonth(round(returnPercentPerMonth, 3));
 		calculatorRes.setSipAmount(round(sip_amt, 0));
-		calculatorRes.setPrincipleAmount(new BigDecimal(principleAmount).setScale(0, RoundingMode.HALF_UP));
+		calculatorRes.setPrincipleAmount(BigDecimal.valueOf(principleAmount).setScale(0, RoundingMode.HALF_UP));
 		calculatorRes.setPrincipleAmountPercentage(round(principlePercentage, 2));
-		calculatorRes.setReturnAmount(new BigDecimal(returnAmount).setScale(0, RoundingMode.HALF_UP));
+		calculatorRes.setReturnAmount(BigDecimal.valueOf(returnAmount).setScale(0, RoundingMode.HALF_UP));
 		calculatorRes.setReturnAmountPercentage(round(100 - principlePercentage, 2));
-		calculatorRes.setStatus("Success");
+		calculatorRes.setStatus(SUCCESS);
 		return calculatorRes;
 	}
 
@@ -158,11 +160,7 @@ public class CalculatorService {
 		double amount = calculatorReq.getAmount();
 		double years = calculatorReq.getTenure();
 		double months = 0;
-		if ((years * 12) % 1 == 0) {
-			months = (years * 12);
-		} else {
-			months = (years * 12);
-		}
+		months = (years * 12);
 
 		double roiPercentage = getROI(months);
 		double roi = (double) roiPercentage / 100;
@@ -171,7 +169,7 @@ public class CalculatorService {
 		calculatorRes.setSipAmount(amount);
 		calculatorRes.setReturnPercent(roiPercentage);
 		calculatorRes.setMonthlyTake(round(monthlytake, 2));
-		calculatorRes.setStatus("Success");
+		calculatorRes.setStatus(SUCCESS);
 
 		return calculatorRes;
 	}
@@ -189,7 +187,7 @@ public class CalculatorService {
 
 		double yearlyExpensesAtRetirement = (calculatorReq.getExpenses() * (Math.pow(1 + inflationRate, diffAge))) * 12;
 
-		BigDecimal corpusAtRetirement = new BigDecimal(
+		BigDecimal corpusAtRetirement = BigDecimal.valueOf(
 				(yearlyExpensesAtRetirement * (1 - (Math.pow(1 / (1 + rateOfInterest), (N))))) / rateOfInterest)
 						.setScale(0, RoundingMode.HALF_UP);
 
@@ -198,8 +196,8 @@ public class CalculatorService {
 		double firstValue = (Math.pow((sipReturn + 1), diffAge * 12)) - 1;
 		double secondValue = firstValue * (sipReturn + 1);
 
-		BigDecimal thirdValue = corpusAtRetirement.multiply(new BigDecimal(sipReturn))
-				.divide(new BigDecimal(secondValue), RoundingMode.HALF_EVEN).setScale(0, RoundingMode.HALF_UP);
+		BigDecimal thirdValue = corpusAtRetirement.multiply(BigDecimal.valueOf(sipReturn))
+				.divide(BigDecimal.valueOf(secondValue), RoundingMode.HALF_EVEN).setScale(0, RoundingMode.HALF_UP);
 		double expensesAtLifeExpectency = calculatorReq.getExpenses()
 				* Math.pow((1 + inflationRate), lifeExpectencyAge - calculatorReq.getCurrentAge());
 
@@ -210,7 +208,7 @@ public class CalculatorService {
 		calculatorRes.setCorpus(corpusAtRetirement);
 		calculatorRes.setExpensesAtLifeExpectency(round(expensesAtLifeExpectency, 2));
 		calculatorRes.setSip(thirdValue);
-		calculatorRes.setStatus("Success");
+		calculatorRes.setStatus(SUCCESS);
 
 		return calculatorRes;
 	}
@@ -218,10 +216,6 @@ public class CalculatorService {
 	private CalculatorResponse expense(CalculatorRequest req) {
 
 		final int minimumSavingsPercentage = 20;
-
-		final int minimumBasicPercentage = 50;
-
-		final int minimumwantsPercentage = 30;
 
 		int numberOfyears = 10;
 
@@ -235,7 +229,7 @@ public class CalculatorService {
 
 		double sipRoi = (double) 10 / (100 * 12); // roi 10 is fixed
 
-		System.out.println("firstRequiredValue" + sipRoi);
+		log.info("firstRequiredValue : {}",sipRoi);
 
 		double sipAmount = totalExpenses * Math.abs(minimumSavingsPercentage - savingsPercentage) / 100;
 
@@ -251,8 +245,8 @@ public class CalculatorService {
 		calculatorRes.setTotalExpenses(totalExpenses);
 		calculatorRes.setExpenseDistribution(expenseDistribution);
 		calculatorRes.setSipAmount(round(sipAmount, 2));
-		calculatorRes.setAmount(new BigDecimal(sip_return).setScale(0, RoundingMode.HALF_UP).toPlainString());
-		calculatorRes.setStatus("Success");
+		calculatorRes.setAmount(BigDecimal.valueOf(sip_return).setScale(0, RoundingMode.HALF_UP).toPlainString());
+		calculatorRes.setStatus(SUCCESS);
 		return calculatorRes;
 	}
 

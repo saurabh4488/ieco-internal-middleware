@@ -52,17 +52,10 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
     private static final int OUTPUT_BYTE_ARRAY_INITIAL_SIZE = 4096;
 
 
-    /*@Value("${digilocker.clientid}")
-    private String dgClientId;
-
-    @Value("${digilocker.clientsecret}")
-    private String dgClientSecret;*/
     private Logger log = LoggerFactory.getLogger(DigiLockerServiceImpl.class);
     @Value("${digilocker.granttype}")
     private String dgGrantType;
 
-    /* @Value("${digilocker.redirecturi}")
-     private String redirectURL;*/
     @Value("${digilocker.baseurl}")
     private String dgBaseURL;
     @Autowired
@@ -71,7 +64,6 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
     private DigiLockerCustomerRepository dgCustRepository;
     @Autowired
     private DigiLockerClient dgClient;
-    private String panURL;
     @Autowired
     private ObjectWriter objetWriter;
 
@@ -85,21 +77,21 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
             Optional<DigiLockerClientDetails> dgClientLookup = dgClientRepository.findByClientId(clientId);
             log.info("dgClientLookup {}" + dgClientLookup);
             if (dgClientLookup.isPresent() && dgClientLookup.get().getClientId().equals(clientId)) {
-                DigiLockerClientDetails dgClient = dgClientLookup.get();
-                log.info("dgClient {}" + dgClient);
+                DigiLockerClientDetails digiLockerClientDetails = dgClientLookup.get();
+                log.info("digiLockerClientDetails {}" + digiLockerClientDetails);
 
-                String url = dgBaseURL + "/1/authorize?response_type=code&client_id=" + dgClient.getDgClientId() + "&redirect_uri="
-                        + dgClient.getRedirectURL() + "&state=" + dgClient.getState();
-                log.info("dgurl{}" + url);
+                String url = dgBaseURL + "/1/authorize?response_type=code&client_id=" + digiLockerClientDetails.getDgClientId() + "&redirect_uri="
+                        + digiLockerClientDetails.getRedirectURL() + "&state=" + digiLockerClientDetails.getState();
+                log.info("dgurl{}",url);
 
                 mapKeyList.addAll(Arrays.asList("authorizationEndpoint"));
                 attrList = Arrays.asList(url);
                 return responseEntityMultipleDataCookieSuccess("", ResponseCodeEnum.DIGILOCKER_DATA_FETCHED_SUCCESSFULLY,
-                        attrList, headers, mapKeyList);
+                        attrList, mapKeyList);
             }
             return responseError("Invalid Client Id!", ResponseCodeEnum.DIGILOCKER_DATA_FETCH_FAILED);
         } catch (Exception e) {
-            log.error("Error Occurred in retrieveAuthorizationUrl" + e.getLocalizedMessage());
+            log.error("Error Occurred in retrieveAuthorizationUrl : {}",e.getLocalizedMessage());
         }
         return null;
 
@@ -145,17 +137,11 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
                             //TODO:
                             mapKeyList.add("xmlGeneratedDate");
                             attrList.add(aadhaarRes.getXmlGeneratedDate());
-                            //attrList.add(aadharXML);
                             ResponseObject res = responseEntityMultipleDataCookieSuccess("Data fetched successfully!",
-                                    ResponseCodeEnum.DIGILOCKER_DATA_FETCHED_SUCCESSFULLY, attrList, new HttpHeaders(), mapKeyList);
+                                    ResponseCodeEnum.DIGILOCKER_DATA_FETCHED_SUCCESSFULLY, attrList, mapKeyList);
 
-                            CompletableFuture.runAsync(new Runnable() {
-                                @Override
-                                public void run() {
-                                    saveInDb(req.getIecoID(), tokenRes, isAadhaarDataReceived, isAadhaarPdfReceived, "N", "N", getStringFromJSON(res),
-                                            aadharXML, aadhaarDoc, req.isCelusion());
-                                }
-                            });
+                            CompletableFuture.runAsync(() -> saveInDb(req.getIecoID(), tokenRes, isAadhaarDataReceived, isAadhaarPdfReceived, "N", "N", getStringFromJSON(res),
+                                    aadharXML, aadhaarDoc, req.isCelusion()));
 
 
                             return res;
@@ -164,12 +150,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
                     } else {
                         log.info("Aadhaar not presented in DigiLocker for the customer {}", req.getIecoID());
                         ResponseObject res = responseError("Aadhaar not found in the Digi Locker", ResponseCodeEnum.DIGILOCKER_DATA_FETCH_FAILED);
-                        CompletableFuture.runAsync(new Runnable() {
-                            @Override
-                            public void run() {
-                                saveInDb(req.getIecoID(), tokenRes, "N", "N", "N", "N", getStringFromJSON(res));
-                            }
-                        });
+                        CompletableFuture.runAsync(() -> saveInDb(req.getIecoID(), tokenRes, "N", "N", "N", "N", getStringFromJSON(res)));
 
 
                         return res;
@@ -188,7 +169,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
             log.error("feign status {}", e.status());
             return responseError("Digilocker failure!", ResponseCodeEnum.DIGILOCKER_DATA_FETCH_FAILED);
         } catch (Exception e) {
-            log.error("error in getCustomerData {}", e);
+            log.error("error in getCustomerData {}",e.getLocalizedMessage());
             log.error("for customer {}", req.getIecoID());
             return responseError("Technical failure!", ResponseCodeEnum.DIGILOCKER_DATA_FETCH_FAILED);
 
@@ -271,74 +252,6 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
 
     }
 
-    private Map<String, Object> getissuedDocuments(String accessToken) {
-        Map<String, Object> docs = new HashMap();
-
-        CompletableFuture<String> panDoc = null;
-        CompletableFuture<String> aadhaarDoc = null;
-
-        try {
-            DigiLockerIssuedDocumentsRes issuedListRes = dgClient.getIssuedDocuments(accessToken);
-            // issuedListRes.getItems().stream().filter(obj->
-            // obj.getDoctype().equalsIgnoreCase("PANCR")).map({DigiLockerIssuedDocumentsRes.DigiLockerIssuedDocDetails::getUri);
-            // return DigiLockerIssuedDocumentsRes.DigiLockerIssuedDocDetails::getUri;});
-            // CompletableFuture.supplyAsync(() -> generateFooA(id));
-            log.info("issuedListRes {}", issuedListRes);
-            //String panURL = null;
-            //String aadhaarURL = null;
-			/* long start = System.currentTimeMillis();
-				ExecutorService executorService = Executors.newFixedThreadPool(10);
-			 Optional<DigiLockerIssuedDocumentsRes.DigiLockerIssuedDocDetails> result = issuedListRes.getItems().parallelStream()
-			            .filter(docDetails->docDetails.getDoctype().equalsIgnoreCase("PANCR")).findAny();
-			 Optional<DigiLockerIssuedDocumentsRes.DigiLockerIssuedDocDetails> result2 = issuedListRes.getItems().parallelStream()
-			            .filter(docDetails->docDetails.getDoctype().equalsIgnoreCase("ADHAR")).findAny();
-			 if(result.isPresent()) {
-				 String panURL = result.get().getUri();
-				 CompletableFuture<String> panDocument = CompletableFuture.supplyAsync(() -> { return getDocumentConcurrent(panURL, accessToken); } , executorService);
-				CompletableFuture<PanResponseVO> futureNcif = CompletableFuture.supplyAsync(() -> { return getPanData(panURL, accessToken); } , executorService);
-				CompletableFuture.allOf(panDocument, futureNcif).join();
-				docs.put("PAN", panDocument.get());
-				docs.put("PANDATA", futureNcif.get());
-			 }
-			 if(result2.isPresent()) {
-				 String aadhaarURL = result2.get().getUri();
-				 CompletableFuture<String> aadhaarDocument = CompletableFuture.supplyAsync(() -> { return getDocumentConcurrent(aadhaarURL, accessToken); } , executorService);
-				 docs.put("AADHAARDOC", aadhaarDocument.get());
-			 }*/
-
-            // This third phase includes bcif check, ncif check and ksec check
-
-
-            // Wait until they are all done
-
-
-            for (DigiLockerIssuedDocumentsRes.DigiLockerIssuedDocDetails docDetails : issuedListRes.getItems()) {
-
-
-                if (docDetails.getDoctype().equalsIgnoreCase("PANCR")) {
-                    log.info("pan doc...");
-                    panDoc = getDocument(docDetails.getUri(), accessToken);
-
-                    docs.put("PAN", convertPDFtoImage(Base64.getDecoder().decode(panDoc.get().getBytes())));
-                    docs.put("PANDATA", getPanData(docDetails.getUri(), accessToken));
-                }
-                if (docDetails.getDoctype().equalsIgnoreCase("ADHAR")) {
-                    log.info("AAdhhar doc...");
-                    aadhaarDoc = getDocument(docDetails.getUri(), accessToken);
-                    docs.put("AADHAARDOC", removeSignature(aadhaarDoc.get()));
-                }
-            }
-            Stream<Object> uri = issuedListRes.getItems().stream()
-                    .filter(doc -> doc.getDoctype().equalsIgnoreCase("PANCR")).map(doc -> doc.getUri());
-
-        } catch (Exception e) {
-            log.error("error in get docs from digilocker {}", e);
-
-        }
-
-        return docs;
-    }
-
     @Async("asyncExecutor")
     public CompletableFuture<String> getDocument(String uri, String accessToken) {
         log.info("getDocument... {}", uri);
@@ -346,7 +259,6 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
         log.info("get document completed");
         return CompletableFuture.completedFuture(Base64.getEncoder().encodeToString(f));
 
-        // storeFile(mul);
     }
 
     @Async("asyncExecutor")
@@ -356,7 +268,6 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
         log.info("get document completed");
         return Base64.getEncoder().encodeToString(f);
 
-        // storeFile(mul);
     }
 
 
@@ -380,15 +291,12 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
         requestMap.add("redirect_uri", digiClientDetails.getRedirectURL());
         log.info("dg token req {}", Arrays.asList(requestMap));
         return dgClient.fetchAccessToken(requestMap);
-        //(access_token=578ee0a2be2bd8b079b56e5f90c5c4eb4276b155, expires_in=3600.0, token_type=Bearer, scope=null, refresh_token=3e22952e9e3d6ad123cd3a9b05282a6379012c68, digilockerid=4d5a74da-bb59-5b33-9e62-731483cd0084, name=Gorige Ramadevi, dob=06021974, gender=F, eaadhaar=Y, reference_key=, new_account=N)
-        //return new ResponseEntity<>(DigiLockerAccessTokenRes.builder().access_token("578ee0a2be2bd8b079b56e5f90c5c4eb4276b155").refresh_token("3e22952e9e3d6ad123cd3a9b05282a6379012c68").digilockerid("4d5a74da-bb59-5b33-9e62-731483cd0084").name("Gorige Ramadevi").dob("06021974").gender("F").eaadhaar("Y").build(),HttpStatus.OK);
-    }
+        }
 
     private AadhaarResponseVO getAadhaarXML(String accessToken) {
 
         AadhaarResponseVO resVO = null;
         try {
-            //ResponseEntity<String> resEnt = dgClient.getAadhaarXML(accessToken);
             OkHttpClient client = new OkHttpClient.Builder().build();
             Request request = new Request.Builder()
                     .url(dgBaseURL+"/3/xml/eaadhaar")
@@ -429,7 +337,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
 
                 return AadhaarResponseVO.builder().xmlGeneratedDate(xmlGeneratedDateNewFormat).AadhaarDataObject(AadhaarResponseVO.AadhaarData.builder()
                         .aadhaarNumber(uidData.getUid()).dob(poiData.getDob()).gender(poiData.getGender())
-                        .name(poiData.getName()).photo(uidData.getPht()).address(address.replaceAll("null,", "")).timeStamp(kycRes.getTs()).txn(kycRes.getTxn()).aadhaarXML(aadharResponse).PoaObject(AadhaarResponseVO.AadhaarData.Poa.builder()
+                        .name(poiData.getName()).photo(uidData.getPht()).address(address.replace("null,", "")).timeStamp(kycRes.getTs()).txn(kycRes.getTxn()).aadhaarXML(aadharResponse).PoaObject(AadhaarResponseVO.AadhaarData.Poa.builder()
                                 .careof(poaData.getCo()).country(poaData.getCountry()).dist(poaData.getDist()).loc(poaData.getLoc())
                                 .pc(poaData.getPc()).state(poaData.getState()).vtc(poaData.getVtc()).house(poaData.getHouse()).street(poaData.getStreet()).landmark(poaData.getLandmark()).build()).build()).build();
 
@@ -438,8 +346,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            //e.printStackTrace();
-            log.error("error in get aadhaar xml {}", e);
+            log.error("error in get aadhaar xml {}",e.getLocalizedMessage());
         }
         return resVO;
     }
@@ -463,8 +370,8 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
 
 
     boolean clientIdValidation(String clientId) {
-        Optional<DigiLockerClientDetails> dgClient = dgClientRepository.findByClientId(clientId);
-        if (dgClient.isPresent() && dgClient.get().getClientId().equals(clientId)) {
+        Optional<DigiLockerClientDetails> dgLockerClientDetails = dgClientRepository.findByClientId(clientId);
+        if (dgLockerClientDetails.isPresent() && dgLockerClientDetails.get().getClientId().equals(clientId)) {
             return true;
         }
 
@@ -484,7 +391,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
             ImageIO.write(bi, "jpeg", baos);
             baos.flush();
         } catch (Exception e) {
-            log.error("error in pdf to image conversion {}", e);
+            log.error("error in pdf to image conversion {}",e.getLocalizedMessage());
         } finally {
             if (document != null) {
                 try {
@@ -492,7 +399,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
                     baos.close();
                     log.info("End convert PDF to Images process");
                 } catch (IOException e) {
-                    log.error("error in pdf to image conversion {}", e);
+                    log.error("error in pdf to image conversion {}",e.getLocalizedMessage());
 
                 }
             }
@@ -512,7 +419,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
             reader.close();
             return Base64.getEncoder().encodeToString(baos.toByteArray());
         } catch (Exception e) {
-            log.error("Exception in remove signature {}", e);
+            log.error("Exception in remove signature {}",e.getLocalizedMessage());
         }
         return null;
     }
@@ -528,7 +435,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
             gender = "TRANSGENDER";
         }
 
-        Map<String, String> pdfdata = new HashMap();
+        Map<String, String> pdfdata = new HashMap<>();
         pdfdata.put("Reference Id:", aadhaarRes.getAadhaarDataObject().getTxn());
         pdfdata.put("Photo", aadhaarRes.getAadhaarDataObject().getPhoto());
         pdfdata.put("Aadhaar Number", aadhaarRes.getAadhaarDataObject().getAadhaarNumber());

@@ -15,7 +15,7 @@ public class ClevertapEventsRequest implements Serializable {
 
 
     @JsonProperty("d")
-    private List<D> d;
+    private transient List<D> d;
     @NoArgsConstructor
     @ToString
     @Builder

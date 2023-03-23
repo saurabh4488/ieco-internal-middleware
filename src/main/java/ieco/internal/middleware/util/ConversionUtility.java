@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class ConversionUtility {
+	protected ConversionUtility() {
+	}
 
-	
 	public static String pojo2jsonString(Object object) throws JsonProcessingException {
 		
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();

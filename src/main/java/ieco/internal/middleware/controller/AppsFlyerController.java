@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -68,13 +70,18 @@ public class AppsFlyerController {
                 httpHeaders.add("authentication", dev_key_placeholder);
                 ResponseEntity<String> response = this.restTemplate.postForEntity(appsflyer_inAppEvents_url+appId, new HttpEntity<>(appsFlyerRequest, httpHeaders), String.class);
                 HttpStatus status = response.getStatusCode();
-                String restCall = response.getBody().toUpperCase();
-                log.info("reponse status : {} - platform - {} - appId = {} - event_name = {} - customer_id = {}", status,platform,appId,appsFlyerRequest.getEventName(),appsFlyerRequest.getCustomer_user_id());
-                log.info("reponse restCall : {}- platform - {} - appId - {}", restCall,platform,appId);
-                responseObject.setTimeStamp(System.currentTimeMillis());
-                responseObject.setResponseCode(status.toString());
-                responseObject.setStatus(HttpStatus.OK.toString());
-                responseObject.setMessage(restCall);
+                if(response.getBody()!=null){
+                    String restCall = response.getBody().toUpperCase();
+                    log.info("reponse status : {} - platform - {} - appId = {} - event_name = {} - customer_id = {}", status,platform,appId,appsFlyerRequest.getEventName(),appsFlyerRequest.getCustomer_user_id());
+                    log.info("reponse restCall : {}- platform - {} - appId - {}", restCall,platform,appId);
+                    responseObject.setTimeStamp(System.currentTimeMillis());
+                    responseObject.setResponseCode(status.toString());
+                    responseObject.setStatus(HttpStatus.OK.toString());
+                    responseObject.setMessage(restCall);
+                }else {
+                    throw new NullPointerException("Null value in Response Body");
+                }
+
             }else{
                 responseObject.setTimeStamp(System.currentTimeMillis());
                 responseObject.setResponseCode("200 OK");
@@ -84,7 +91,7 @@ public class AppsFlyerController {
             log.info("End of inAppEvents");
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }catch (Exception e){
-            log.error("Exception in inAppEvents - {}",e);
+            log.error("Exception in inAppEvents - {}",e.getMessage());
         }
         return new ResponseEntity<>(new ResponseObject(), HttpStatus.OK);
     }
@@ -95,12 +102,5 @@ public class AppsFlyerController {
         return new ResponseEntity<>(appsFlyerService.pushApIService(appsFlyerPushRequest), HttpStatus.OK);
     }
 
-    private void setRestTemplateResponseType(){
-        List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
-        messageConverters.add(converter);
-        this.restTemplate.setMessageConverters(messageConverters);
-    }
 
 }

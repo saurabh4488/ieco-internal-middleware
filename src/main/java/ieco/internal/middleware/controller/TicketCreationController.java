@@ -28,6 +28,8 @@ import java.util.LinkedList;
 @RestController
 public class TicketCreationController {
 
+    public static final String OK = "200 OK";
+    public static final String AUTH_SCHEME = "&auth_scheme=";
     private Logger log = LoggerFactory.getLogger(TicketCreationController.class);
     @Autowired
     private TicketCreationService ticketCreationService;
@@ -60,7 +62,7 @@ public class TicketCreationController {
     private String v;
 
     @Value("${whatsapp.auth_scheme}")
-    private String auth_scheme;
+    private String auth_scheme_whatsapp;
 
     @Value("${whatsapp.msg_type}")
     private String msg_type;
@@ -91,7 +93,7 @@ public class TicketCreationController {
         if (isZohoEnable) {
             return ticketCreationService.createCallbackZohoTicket(req);
         } else {
-            return ResponseObject.builder().message("Zoho Ticket created successfully for callback").status("200 OK")
+            return ResponseObject.builder().message("Zoho Ticket created successfully for callback").status(OK)
                     .responseCode("WC002").ticketId("987654").build();
         }
 
@@ -102,7 +104,7 @@ public class TicketCreationController {
         if (isZohoEnable) {
             return ticketCreationService.getZohoTicketDetails(req);
         } else {
-            return ResponseObject.builder().message("Ticket created successfully").status("200 OK")
+            return ResponseObject.builder().message("Ticket created successfully").status(OK)
                     .responseCode("WC002").ticketId("987654").build();
 
 
@@ -114,10 +116,6 @@ public class TicketCreationController {
     public ResponseEntity<ResponseObject> createTicket(@RequestBody CleverTapRequestVO creq) {
 
         log.info("req from clever tap {}", creq);
-        // if
-        // (!(StringUtils.isEmpty(creq.getProfiles().get(0).getKeyValues().getCustomerId())
-        // && StringUtils.isEmpty(
-        // creq.getProfiles().get(0).getKeyValues().getProductCategory())) ) {
         if (new NullCheck<>(creq).allNotNull(creq.getProfiles().get(0).getKeyValues()).isNotNull()) {
 
             String isSmsEnabled = creq.getProfiles().get(0).getKeyValues().getEnableSMS();
@@ -126,19 +124,19 @@ public class TicketCreationController {
                 sendSMS(creq);
                 pushWhatsAppMessage(creq);
                 ResponseObject res = new ResponseObject();
-                res.setStatus("200 OK");
+                res.setStatus(OK);
                 return new ResponseEntity<>(res, HttpStatus.OK);
             } else {
                 if (isSmsEnabled.equalsIgnoreCase("Y")) {
                     sendSMS(creq);
                     ResponseObject res = new ResponseObject();
-                    res.setStatus("200 OK");
+                    res.setStatus(OK);
                     return new ResponseEntity<>(res, HttpStatus.OK);
                 }
                 if (isWhatsAppEnabled.equalsIgnoreCase("Y")) {
                     pushWhatsAppMessage(creq);
                     ResponseObject res = new ResponseObject();
-                    res.setStatus("200 OK");
+                    res.setStatus(OK);
                     return new ResponseEntity<>(res, HttpStatus.OK);
                 }
             }
@@ -159,7 +157,6 @@ public class TicketCreationController {
             req.setName(creq.getProfiles().get(0).getName());
             req.setEmail(creq.getProfiles().get(0).getEmail());
             req.setFromClevertap(true);
-            // req.setEmail(creq.getProfiles().get(0).getEmail());
             return new ResponseEntity<>(ticketCreationService.ticketCreate(req), HttpStatus.OK);
         }
         return new ResponseEntity<>(AbstractResponse.responseError(
@@ -170,7 +167,7 @@ public class TicketCreationController {
     private void sendSMS(CleverTapRequestVO cReq) {
         try {
             CustomerDetailsResponse custDetailsRes = customerUtil.getCustomerId(cReq);
-            if (custDetailsRes.getStatus().equalsIgnoreCase("200 OK")) {
+            if (custDetailsRes.getStatus().equalsIgnoreCase(OK)) {
                 String smsText = cReq.getProfiles().get(0).getKeyValues().getSmsMessage();
                 smsText = this.returnCommonDynamicMessage(cReq, custDetailsRes, smsText);
                 log.info("smsText - {}", smsText);
@@ -192,14 +189,14 @@ public class TicketCreationController {
                         cReq.getProfiles().get(0).getKeyValues().getCustomerId());
             }
         } catch (Exception e) {
-            log.error("Exception in sendSMS - {} ", e);
+            log.error("Exception in sendSMS - {} ",e.getMessage());
         }
     }
 
     private void pushWhatsAppMessage(CleverTapRequestVO creq) {
         try {
             CustomerDetailsResponse custDetailsRes = customerUtil.getCustomerId(creq);
-            if (custDetailsRes.getStatus().equalsIgnoreCase("200 OK")) {
+            if (custDetailsRes.getStatus().equalsIgnoreCase(OK)) {
                 String cReqMobile = creq.getProfiles().get(0).getKeyValues().getMobile();
                 String mobile = "";
                 if (cReqMobile != null && !cReqMobile.isEmpty()) {
@@ -209,8 +206,8 @@ public class TicketCreationController {
                 }
                 // Sandeep code for AES Encryption Start
                 String optInDataToEncodeAndEncrypt = "method=" + optinMethod + "&format=" + optinFormat
-                        + "&password=" + password + "&phone_number=" + mobile + "&v=" + v + "&auth_scheme="
-                        + auth_scheme + "&channel=" + channel;
+                        + "&password=" + password + "&phone_number=" + mobile + "&v=" + v + AUTH_SCHEME
+                        + auth_scheme_whatsapp + "&channel=" + channel;
                 String optInEncrdata = AESEncryption.encrypt(optInDataToEncodeAndEncrypt);
                 optinEncrp(optInEncrdata);
                 String whatsAppSms = creq.getProfiles().get(0).getKeyValues().getWhatsappsms();
@@ -218,8 +215,7 @@ public class TicketCreationController {
                 whatsAppSms = this.returnCommonDynamicMessage(creq, custDetailsRes, whatsAppSms);
                 log.info("whatsAppSms - {}", whatsAppSms);
                 String dataToEncodeAndEncrypt = "method=" + method + "&format=" + format + "&password="
-                        + password + "&send_to=" + mobile + "&v=" + v + "&auth_scheme=" + auth_scheme
-//            + "&msg_type=" + msg_type + "&msg=" + whatsAppSms + "&preview_url= true";
+                        + password + "&send_to=" + mobile + "&v=" + v + AUTH_SCHEME + auth_scheme_whatsapp
                         + "&msg_type=" + msg_type + "&msg=" + whatsAppSms;
                 boolean isTemplate = creq.getProfiles().get(0).getKeyValues().isTemplate();
                 if(isTemplate){
@@ -238,7 +234,7 @@ public class TicketCreationController {
                         creq.getProfiles().get(0).getKeyValues().getCustomerId());
             }
         } catch (Exception e) {
-            log.error("Exception in pushWhatsAppMessage - {} ", e);
+            log.error("Exception in pushWhatsAppMessage - {} ", e.getMessage());
         }
     }
 
@@ -269,7 +265,7 @@ public class TicketCreationController {
             // dynamically
             return messageTxt;
         } catch (Exception e) {
-            log.error("Exception in returnCommonMessage method - {}", e);
+            log.error("Exception in returnCommonMessage method - {}", e.getMessage());
         }
         return messageTxt;
     }
@@ -277,28 +273,14 @@ public class TicketCreationController {
     private String encodeValueForDynaicTxt(String value) {
         String result;
         try {
-            result = value.replaceAll("%7B", "{").replaceAll("%7D", "}");
+            result = value.replace("%7B", "{").replace("%7D", "}");
         } catch (Exception e) {
-            log.info("error in encoding encodeValue {}", e);
+            log.info("error in encoding encodeValue {}", e.getMessage());
             result = value;
         }
         return result;
     }
 
-    private String encodeValue(String value) {
-        String result;
-        try {
-            result = URLEncoder.encode(value, "UTF-8").replaceAll("\\+", "%20").replaceAll("\\%21", "!")
-                    .replaceAll("\\%27", "'").replaceAll("\\%28", "(").replaceAll("\\%29", ")")
-                    .replaceAll("\\%7E", "~");
-        } catch (UnsupportedEncodingException e) {
-
-            log.info("error in encoding message {}", e);
-            result = value;
-        }
-
-        return result;
-    }
 
     private WhatsAppPushMessageResponse pushEncryptedMessage(String encrdata) {
         try {
@@ -306,7 +288,7 @@ public class TicketCreationController {
                     whatsAppClient.pushEncryptedMessage(userid, encrdata);
             return whatsAppPushMessageResponse;
         } catch (Exception exception) {
-            log.error("Exception in pushEncryptedMessage - {} ", exception);
+            log.error("Exception in pushEncryptedMessage - {} ", exception.getMessage());
         }
         return null;
     }
@@ -315,19 +297,19 @@ public class TicketCreationController {
         try {
             whatsAppClient.optinEncrp(userid, encrdata);
         } catch (Exception e) {
-            log.error("Exception in optinEncrp - {} ", e);
+            log.error("Exception in optinEncrp - {} ", e.getMessage());
         }
     }
 
     void optin(String mobile) {
-        whatsAppClient.optIn(optinMethod, format, userid, password, mobile, v, auth_scheme, channel);
+        whatsAppClient.optIn(optinMethod, format, userid, password, mobile, v, auth_scheme_whatsapp, channel);
     }
 
     // sendwhatsapptext
     // sendwhatsappmedia
 
     @PostMapping("/sendWhatsAppMedia")
-    ResponseEntity<String> sendMedia(@RequestBody @Valid WhatsAppMediaRequest creq) throws Exception {
+    public ResponseEntity<String> sendMedia(@RequestBody @Valid WhatsAppMediaRequest creq) {
         log.info("intializing sendWhatsAppMedia request {}", creq);
         try {
             CustomerDetailsResponse custDetailsRes = customerUtil.getCustomerId(creq);
@@ -347,25 +329,19 @@ public class TicketCreationController {
 
 
             String msg = "method=SendMediaMessage&format=json&password=" + password + "&send_to=" + mobile
-                    + "&v=" + v + "&auth_scheme=" + auth_scheme + "&isTemplate=true"
+                    + "&v=" + v + AUTH_SCHEME + auth_scheme_whatsapp + "&isTemplate=true"
                     + "&msg_type=IMAGE&media_url=" + creq.getProfiles().get(0).getKeyValues().getMediaURL()
                     + "&caption=" + whatsAppSms + "&footer="
                     + creq.getProfiles().get(0).getKeyValues().getFooter();
 
-            /*
-             * String msg = "method=SendMediaMessage&format=json&password=" + password + "&send_to=" +
-             * mobile + "&v=" + v + "&auth_scheme=" + auth_scheme + "&isTemplate=true" +
-             * "&msg_type=IMAGE&media_url=" + whatsAppMediaRequest.getMediaURL() + "&caption=" +
-             * whatsAppMediaRequest.getWhatsAppSms();
-             */
 
-            System.out.println(msg);
+            log.info(msg);
             String enc = AESEncryption.encrypt(msg);
-            System.out.println(enc);
+            log.info(enc);
             WhatsAppPushMessageResponse whatsAppPushMessageResponse = this.pushEncryptedMessage(enc);
             log.info("whatsAppPushMessageResponse res {}", whatsAppPushMessageResponse);
         } catch (Exception e) {
-            log.error("Exception in sendMedia - {} ", e);
+            log.error("Exception in sendMedia - {} ", e.getMessage());
             e.printStackTrace();
         }
         return new ResponseEntity<>("success", HttpStatus.OK);
@@ -400,7 +376,7 @@ public class TicketCreationController {
             // dynamically
             return messageTxt;
         } catch (Exception e) {
-            log.error("Exception in returnCommonMessage method - {}", e);
+            log.error("Exception in returnCommonMessage method - {}", e.getMessage());
         }
         return messageTxt;
     }

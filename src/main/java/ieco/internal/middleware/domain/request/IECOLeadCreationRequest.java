@@ -43,7 +43,7 @@ public class IECOLeadCreationRequest {
 	
 	private String environment;
 	
-	private List productsPurchased;
+	private List<Object> productsPurchased;
 	
 	// for social media content
     private String utmSource;

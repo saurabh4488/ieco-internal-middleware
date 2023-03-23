@@ -108,7 +108,6 @@ public class OtpController {
       res.setMessage("created successfully");
       res.setStatus("200 OK");
       res.setResponseCode("TP002");
-      // res.setTicketId(String.valueOf(request.getTicketId()));
 
       return (T) res;
     }

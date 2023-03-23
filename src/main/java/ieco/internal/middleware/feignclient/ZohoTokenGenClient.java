@@ -11,8 +11,5 @@ public interface ZohoTokenGenClient {
 
 	@PostMapping("${Zohotokengeneration}")
     ResponseEntity<ZohoTokenGenResponse> generateAccessToken();
-	
-	
-	/*@PostMapping("${Zohotokengeneration}")
-    ZohoTokenGenResponse generateAccessTokenzforContactUpdate();*/
+
 }

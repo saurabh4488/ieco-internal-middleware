@@ -51,7 +51,7 @@ public class ResponseObject implements Serializable {
 	/** The attrs. */
 	@JsonProperty("attrs")
 	//@ApiModelProperty(position = 4, value = "attributes")
-	private Map<String, Object> attrs;
+	private transient Map<String, Object> attrs;
 	
 	private String ticketDetails;
 	

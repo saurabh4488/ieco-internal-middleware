@@ -1,6 +1,11 @@
 package ieco.internal.middleware.util;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DepartmentUtil {
+	protected DepartmentUtil() {
+	}
 
 	public static String getdepartment(String category) {
 
@@ -46,6 +51,8 @@ public class DepartmentUtil {
 		case "K-Sec":
 			deptID = "17634000000065754";
 			break;
+		default:
+			log.info("Invalid Department !!");
 		}
 
 		return deptID;

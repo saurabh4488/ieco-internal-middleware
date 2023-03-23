@@ -22,7 +22,7 @@ public class HelperController {
     private HelperService helperService;
 
     @PostMapping("/getCustomerType")
-    ResponseEntity<HashMap<String, String>> getCustomerType(@RequestBody @Valid CustomerTypeRequest customerTypeRequest) {
+    public ResponseEntity<HashMap<String, String>> getCustomerType(@RequestBody @Valid CustomerTypeRequest customerTypeRequest) {
         log.info("Inside get customerType controller");
         return helperService.getCustomerType(customerTypeRequest);
     }

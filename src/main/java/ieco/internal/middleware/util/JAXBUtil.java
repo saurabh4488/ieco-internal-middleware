@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JAXBUtil {
-	
+	protected JAXBUtil() {
+	}
+
 	private static Map<String, JAXBContext> map = new HashMap<>();
 
 	/**
@@ -40,8 +42,6 @@ public class JAXBUtil {
 			 * Fortify issue started added line 48-57, commented line 46 47
 			 */
 
-			//T obj = clazz.cast(unmarshaller.unmarshal(new ByteArrayInputStream(xml.getBytes())));
-			//return obj;
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -115,7 +115,6 @@ public static <T> String marshallwithNameSpace(Object xml, Class<T> clazz,String
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, xmlNs);
-      //  marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new SANamespaceMapper());
         marshaller.marshal(xml , sw);
         String xmlContent = sw.toString();
         return xmlContent;
@@ -140,9 +139,7 @@ public static <T> String marshallwithNameSpace(Object xml, Class<T> clazz,String
 		 * added line 149-156
 		 */
 
-       // Reader reader = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), "UTF-8");
 		try {
-           //obj = clazz.cast(unmarshaller.unmarshal(reader));
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -150,6 +147,7 @@ public static <T> String marshallwithNameSpace(Object xml, Class<T> clazz,String
 			obj = clazz.cast(unmarshaller.unmarshal(document));
 			return obj;
 		} catch (ParserConfigurationException | SAXException e) {
+			e.printStackTrace();
 		}
 		/**
 		 *   finally  {

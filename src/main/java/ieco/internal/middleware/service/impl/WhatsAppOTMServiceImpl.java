@@ -163,7 +163,7 @@ public class WhatsAppOTMServiceImpl extends AbstractResponse implements WhatsApp
     private String encodeValueForDynaicTxt(String value) {
         String result;
         try {
-            result = value.replaceAll("%7B", "{").replaceAll("%7D", "}");
+            result = value.replace("%7B", "{").replace("%7D", "}");
         } catch (Exception e) {
             log.info("error in encoding encodeValue {}", e);
             result = value;

@@ -15,7 +15,7 @@ public class KbankSRCreationController {
 	private KbankSRCreationService kbankSRCreationService;
 	
 	@PostMapping("/siebel/SRcreation")
-	KbankSRCreationResponse kbnkSRCreation(@RequestBody KbankSRCreationRequest kbankSRCreationRequest){
+	public KbankSRCreationResponse kbnkSRCreation(@RequestBody KbankSRCreationRequest kbankSRCreationRequest){
 		return kbankSRCreationService.kbnkSRCreation(kbankSRCreationRequest);
 	}
 }

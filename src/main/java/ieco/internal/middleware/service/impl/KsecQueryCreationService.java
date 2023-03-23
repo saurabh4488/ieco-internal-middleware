@@ -72,13 +72,10 @@ public class KsecQueryCreationService {
 				if (request.getIecoId() != null) {
 					CustomerDetailsResponse custDetailsRes = otpService
 							.getCustomerdetails(Integer.parseInt(request.getIecoId()), null);
-					// System.out.println(custDetailsRes.getStatus());
-					// System.out.println(custDetailsRes.getAttrs().getUserDetails().getKsecClientCode());
 					log.info("custDetailsRes for ksec cliend id {}", custDetailsRes.toString());
 					if (custDetailsRes.getStatus().equalsIgnoreCase("200 OK")
 							&& custDetailsRes.getAttrs().getUserDetails().getKsecClientCode() != null) {
 						idRequest.setClientCd(custDetailsRes.getAttrs().getUserDetails().getKsecClientCode());
-						// System.out.println(custDetailsRes.getAttrs().getUserDetails().getKsecClientCode());
 					} else {
 						idRequest.setClientCd("123NW");
 					}
@@ -159,6 +156,8 @@ public class KsecQueryCreationService {
 			userID = "KS20196";
 			break;
 
+		default:
+			log.info("User Email Not Found !!");
 		}
 
 		return userID;
@@ -178,6 +177,9 @@ public class KsecQueryCreationService {
 		case "Inter":
 			statusID = "7.0";
 			break;
+
+		default:
+			log.info("Status Not Found");
 
 		}
 

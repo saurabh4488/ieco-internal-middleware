@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 public class LeadToContactConversion {
 
 	void leadToContact() {
-		
+		// Content not added
 	}
 	
 }

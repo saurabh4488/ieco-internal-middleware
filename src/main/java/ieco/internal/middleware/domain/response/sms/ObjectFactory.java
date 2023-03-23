@@ -33,7 +33,8 @@ public class ObjectFactory {
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: com.ieco.integration.sms.response
      * 
      */
-    public ObjectFactory() {
+    public ObjectFactory objectFactory() {
+        return new ObjectFactory();
     }
 
     /**

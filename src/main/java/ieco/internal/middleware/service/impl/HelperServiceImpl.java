@@ -31,6 +31,9 @@ public class HelperServiceImpl extends AbstractResponse implements HelperService
                 res.put("customerType",getCustomerType.getBody().get("customerType"));
                 return new ResponseEntity<>(res, HttpStatus.OK);
             }
+            else {
+                throw new NullPointerException("Customer Id or Customer Type Not Found ");
+            }
         }
         catch(Exception e){
             log.info("Exception occurred in getCustomerType {}",e.getLocalizedMessage());
