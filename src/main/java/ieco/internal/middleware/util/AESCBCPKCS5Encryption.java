@@ -9,6 +9,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.util.Base64;
 
 @Slf4j
@@ -21,10 +22,12 @@ public class AESCBCPKCS5Encryption {
       throw new IllegalArgumentException("text to be encrypted and key should not be null");
     }
     Cipher cipher = Cipher.getInstance(ALGORITHM);
+      SecureRandom randomSecureRandom=new SecureRandom();
     byte[] messageArr = message.getBytes();
     byte[] keyparam=key.getBytes();
     SecretKeySpec keySpec = new SecretKeySpec(keyparam, "AES");
     byte[] ivParams = new byte[16];
+    randomSecureRandom.nextBytes(ivParams);
     byte[] encoded = new byte[messageArr.length + 16];
     System.arraycopy(ivParams,0,encoded,0,16);
     System.arraycopy(messageArr, 0, encoded, 16, messageArr.length);
@@ -37,6 +40,7 @@ public class AESCBCPKCS5Encryption {
     if(encryptedStr == null || key == null){
       throw new IllegalArgumentException("text to be decrypted and key should not be null");
     }
+    SecureRandom randomSecureRandom=new SecureRandom();
    Cipher cipher = Cipher.getInstance(ALGORITHM);
    byte[] keyparam=key.getBytes();
     SecretKeySpec keySpec = new SecretKeySpec(keyparam, "AES");
@@ -45,6 +49,7 @@ public class AESCBCPKCS5Encryption {
     byte[] decodedEncrypted = new byte[encoded.length-16];
     System.arraycopy(encoded, 16, decodedEncrypted, 0,encoded.length-16);
     byte[] ivParams = new byte[16];
+    randomSecureRandom.nextBytes(ivParams);
     System.arraycopy(encoded,0, ivParams,0, ivParams.length);
     cipher.init(Cipher.DECRYPT_MODE, keySpec, new IvParameterSpec(ivParams));
     byte[] decryptedBytes = cipher.doFinal(decodedEncrypted);

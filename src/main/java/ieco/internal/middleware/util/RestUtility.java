@@ -1,6 +1,7 @@
 package ieco.internal.middleware.util;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Iterator;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class RestUtility {
 
@@ -30,7 +32,7 @@ public class RestUtility {
 
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
 
-		System.out.println(builder.build().toUri());
+		log.info(builder.build().toUri());
 		return restTemplate.postForEntity(builder.build().toUri(), new HttpEntity<>(request, createHeaders(mapheaders)),
 				response);
 	}
@@ -47,7 +49,6 @@ public class RestUtility {
 
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
 
-		//System.out.println(builder.build().toUri());
 		return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<>(createHeaders(mapheaders)),
 				response);
 	}
@@ -67,7 +68,6 @@ public class RestUtility {
 				headers.add(key, mapheaders.get(key));
 			}
 
-			//System.out.println(headers);
 
 			return headers;
 		} else {
@@ -76,13 +76,7 @@ public class RestUtility {
 
 	}
 
-	/**
-	 * @param <T>
-	 * @param <P>
-	 * @param response
-	 * @return
-	 */
-	public <T, P> boolean checkStatus(ResponseEntity<T> response) {
+	public <T> boolean checkStatus(ResponseEntity<T> response) {
 
 		
 		return response.getStatusCodeValue() == 200 ? true : false;

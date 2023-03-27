@@ -83,7 +83,8 @@ public class Click2CallLoginService {
 			ObjectMapper mapper = new ObjectMapper();
 
 			if (ow.writeValueAsString(loginResponse.getBody())!=null){
-				log.info("LogInResponse : {}",ow.writeValueAsString(loginResponse.getBody()));
+				String loginResponseBody=ow.writeValueAsString(loginResponse.getBody());
+				log.info("LogInResponse : {}",loginResponseBody);
 			}
 			C2CLoginResponse C2CLoginRes = mapper.readValue(loginResponse.getBody(), C2CLoginResponse.class);
 			

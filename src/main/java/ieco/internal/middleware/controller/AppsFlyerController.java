@@ -9,13 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -70,8 +67,9 @@ public class AppsFlyerController {
                 httpHeaders.add("authentication", dev_key_placeholder);
                 ResponseEntity<String> response = this.restTemplate.postForEntity(appsflyer_inAppEvents_url+appId, new HttpEntity<>(appsFlyerRequest, httpHeaders), String.class);
                 HttpStatus status = response.getStatusCode();
-                if(response.getBody()!=null){
-                    String restCall = response.getBody().toUpperCase();
+                String responseBody=response.getBody();
+                if(responseBody!=null){
+                    String restCall = responseBody.toUpperCase();
                     log.info("reponse status : {} - platform - {} - appId = {} - event_name = {} - customer_id = {}", status,platform,appId,appsFlyerRequest.getEventName(),appsFlyerRequest.getCustomer_user_id());
                     log.info("reponse restCall : {}- platform - {} - appId - {}", restCall,platform,appId);
                     responseObject.setTimeStamp(System.currentTimeMillis());

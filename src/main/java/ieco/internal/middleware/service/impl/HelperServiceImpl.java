@@ -3,6 +3,7 @@ package ieco.internal.middleware.service.impl;
 
 import ieco.internal.middleware.domain.request.CustomerTypeRequest;
 import ieco.internal.middleware.domain.response.AbstractResponse;
+import ieco.internal.middleware.domain.response.ResponseObject;
 import ieco.internal.middleware.feignclient.UtilityServiceClient;
 import ieco.internal.middleware.service.HelperService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,10 @@ public class HelperServiceImpl extends AbstractResponse implements HelperService
         try {
             ResponseEntity<HashMap<String, String>> getCustomerType = utilityServiceClient.getCustomerType(customerTypeRequest);
             log.info("getCustomer Type result is {}",getCustomerType);
-            if(getCustomerType.getBody()!=null) {
-                res.put("customerId",getCustomerType.getBody().get("customerId"));
-                res.put("customerType",getCustomerType.getBody().get("customerType"));
+            HashMap<String, String> customerTypeResponseBody=getCustomerType.getBody();
+            if(customerTypeResponseBody!=null) {
+                res.put("customerId",customerTypeResponseBody.get("customerId"));
+                res.put("customerType",customerTypeResponseBody.get("customerType"));
                 return new ResponseEntity<>(res, HttpStatus.OK);
             }
             else {

@@ -128,7 +128,7 @@ public class WhatsAppOTMServiceImpl extends AbstractResponse implements WhatsApp
                 log.info("whatsAppPushMessage encrdata {}", encrdata);
                 WhatsAppPushMessageResponse whatsAppPushMessageResponse = this.pushEncryptedMessage(encrdata);
                 log.info("whatsAppPushMessageResponse res {}", whatsAppPushMessageResponse);
-                if (whatsAppPushMessageResponse.getResponse().status.equalsIgnoreCase("success")) {
+                if (whatsAppPushMessageResponse!=null && whatsAppPushMessageResponse.getResponse().status.equalsIgnoreCase("success")) {
                     ResponseObject responseObject = responseSuccess("Success", ResponseCodeEnum.WHATSAPP_OTM_SUCCESS);
                     return responseObject;
                 }

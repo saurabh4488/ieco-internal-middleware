@@ -12,11 +12,8 @@ import java.util.List;
 @Builder
 @ToString
 public class CleverTapRequestVO {
-
-	
 	@JsonProperty("profiles")
 	private List<Profile> profiles;
-	
 
 	public static class Profile {
 

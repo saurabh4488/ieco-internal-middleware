@@ -15,8 +15,6 @@ import java.util.List;
 public class WhatsAppMediaRequest {
 
 
-
-
   @JsonProperty("profiles")
   private List<Profile> profiles;
 

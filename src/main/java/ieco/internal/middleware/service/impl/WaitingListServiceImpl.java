@@ -276,7 +276,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             }
             return responseError("Reference code Verification failed", ResponseCodeEnum.REFERENCE_CODE_VERIFIED_FAILED);
         } catch (Exception e) {
-            log.error("Error occured in verifyRefCode {}", e.getMessage());
             throw new IecoRuntimeException(String.format(ERROR_WITH_CHECK_EMAIL_S, e.getMessage(), refCode),
                     e);
         }
@@ -590,7 +589,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError(AUTHENTICATION_IS_REQUIRED_TO_ACCESS_THIS_RESOURCE,
                     ResponseCodeEnum.EMAIL_NOT_EXISTS);
         } catch (Exception e) {
-            log.error("error while providing access {}",e.getLocalizedMessage());
             throw new IecoRuntimeException(
                     String.format(ERROR_WITH_CHECK_EMAIL_S, e.getMessage(), "provide access"), e);
         }
@@ -610,7 +608,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError(AUTHENTICATION_IS_REQUIRED_TO_ACCESS_THIS_RESOURCE,
                     ResponseCodeEnum.EMAIL_NOT_EXISTS);
         } catch (Exception e) {
-            log.error("error while deleting user {}", e.getLocalizedMessage());
             throw new IecoRuntimeException(
                     String.format(ERROR_WITH_CHECK_EMAIL_S, e.getMessage(), "deleting user"), e);
         }
@@ -632,7 +629,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError(AUTHENTICATION_IS_REQUIRED_TO_ACCESS_THIS_RESOURCE,
                     ResponseCodeEnum.EMAIL_NOT_EXISTS);
         } catch (Exception e) {
-            log.error("error while deleting user {}", e.getLocalizedMessage());
             throw new IecoRuntimeException(
                     String.format(ERROR_WITH_CHECK_EMAIL_S, e.getMessage(), "deleting user"), e);
         }
@@ -803,7 +799,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError(debounceResponse.getDebounce().getError(),
                     ResponseCodeEnum.DEBOUNCE_VERIFICATION_SUCCESS);
         } catch (Exception e) {
-            log.error("Exception while checking the debounce {}", e.getLocalizedMessage());
             throw new IecoRuntimeException(e.getMessage(), e.getCause());
         }
     }
@@ -949,7 +944,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError("Authentication is required to perform this action!",
                     ResponseCodeEnum.EMAIL_NOT_EXISTS);
         } catch (Exception e) {
-            log.error("Exception in reduceWaitingListNumber {}",e.getLocalizedMessage());
             throw new IecoRuntimeException(e.getMessage(), e.getCause());
         }
     }

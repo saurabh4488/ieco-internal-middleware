@@ -85,7 +85,9 @@ public class ZohoServiceImpl extends AbstractResponse implements ZohoService {
                     } else {
                         cf = new DeskContactCreationCustomFields();
                     }
-                    cf.setCf_cherry_bank_category(customerType.getBody().toString());
+
+                    HashMap<String, String> customerTypeResponseBody=customerType.getBody();
+                    cf.setCf_cherry_bank_category(customerTypeResponseBody.toString());
                     contactCreationReq.setCf(cf);
                 }
             }

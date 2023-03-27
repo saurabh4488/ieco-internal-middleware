@@ -8,6 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.util.Base64;
 
 @Slf4j
@@ -25,7 +26,9 @@ public class FinacleUtils {
 		byte[] messageArr = message.getBytes();
 		byte[] keyparam = key.getBytes();
 		SecretKeySpec keySpec = new SecretKeySpec(keyparam, "AES");
+		SecureRandom randomSecureRandom = new SecureRandom();
 		byte[] ivParams = new byte[16];
+		randomSecureRandom.nextBytes(ivParams);
 		byte[] encoded = new byte[messageArr.length + 16];
 		System.arraycopy(ivParams, 0, encoded, 0, 16);
 		System.arraycopy(messageArr, 0, encoded, 16, messageArr.length);
@@ -47,7 +50,9 @@ public class FinacleUtils {
 		encoded = Base64.getDecoder().decode(encoded);
 		byte[] decodedEncrypted = new byte[encoded.length - 16];
 		System.arraycopy(encoded, 16, decodedEncrypted, 0, encoded.length - 16);
+		SecureRandom randomSecureRandom = new SecureRandom();
 		byte[] ivParams = new byte[16];
+		randomSecureRandom.nextBytes(ivParams);
 		System.arraycopy(encoded, 0, ivParams, 0, ivParams.length);
 		cipher.init(Cipher.DECRYPT_MODE, keySpec, new IvParameterSpec(ivParams));
 		byte[] decryptedBytes = cipher.doFinal(decodedEncrypted);
@@ -62,7 +67,9 @@ public class FinacleUtils {
 		Cipher cipher = Cipher.getInstance(ALGORITHM);
 		byte[] messageArr = message.getBytes();
 		SecretKeySpec keySpec = new SecretKeySpec(Base64.getDecoder().decode(key), "AES");
+		SecureRandom randomSecureRandom = new SecureRandom();
 		byte[] ivParams = new byte[16];
+		randomSecureRandom.nextBytes(ivParams);
 		byte[] encoded = new byte[messageArr.length + 16];
 		System.arraycopy(ivParams, 0, encoded, 0, 16);
 		System.arraycopy(messageArr, 0, encoded, 16, messageArr.length);
@@ -83,7 +90,9 @@ public class FinacleUtils {
 		encoded = Base64.getDecoder().decode(encoded);
 		byte[] decodedEncrypted = new byte[encoded.length - 16];
 		System.arraycopy(encoded, 16, decodedEncrypted, 0, encoded.length - 16);
+		SecureRandom randomSecureRandom = new SecureRandom();
 		byte[] ivParams = new byte[16];
+		randomSecureRandom.nextBytes(ivParams);
 		System.arraycopy(encoded, 0, ivParams, 0, ivParams.length);
 		cipher.init(Cipher.DECRYPT_MODE, keySpec, new IvParameterSpec(ivParams));
 		byte[] decryptedBytes = cipher.doFinal(decodedEncrypted);
