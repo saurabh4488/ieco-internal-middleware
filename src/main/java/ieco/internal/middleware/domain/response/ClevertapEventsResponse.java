@@ -17,6 +17,12 @@ public class ClevertapEventsResponse {
     @JsonProperty("unprocessed")
     private List<Unprocessed> unprocessed;
 
+
+    @NoArgsConstructor
+    @ToString
+    @Builder
+    @AllArgsConstructor
+    @Data
     public static class Unprocessed{
         private String status;
         private String code;
