@@ -1,15 +1,16 @@
 package ieco.internal.middleware.util;
 
-import org.springframework.web.multipart.MultipartFile;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 
 import java.io.*;
+import java.nio.file.Path;
 
 
 /**
  * The type Ieco custom multipart file.
  * @author AlokeT
  */
-public class IecoCustomMultipartFile implements MultipartFile, Serializable {
+public class IecoCustomMultipartFile implements FileUpload, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private final byte[] bytesContent;
@@ -32,46 +33,81 @@ public class IecoCustomMultipartFile implements MultipartFile, Serializable {
 		this.contentType = contentType;
 	}
 
+
+
 	@Override
-	public String getName() {
+	public String name() {
 		return name;
 	}
 
 	@Override
-	public String getOriginalFilename() {
+	public Path filePath() {
+		return null;
+	}
+
+	@Override
+	public String fileName() {
 		return originalName;
 	}
 
 	@Override
-	public String getContentType() {
-		return contentType;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return bytesContent == null || bytesContent.length == 0;
-	}
-
-	@Override
-	public long getSize() {
+	public long size() {
 		return bytesContent.length;
 	}
 
 	@Override
+	public String contentType() {
+		return contentType;
+	}
+
+	@Override
+	public String charSet() {
+		return null;
+	}
+
+
+
+
+	public String getName() {
+		return name;
+	}
+
+
+	public String getOriginalFilename() {
+		return originalName;
+	}
+
+
+	public String getContentType() {
+		return contentType;
+	}
+
+
+	public boolean isEmpty() {
+		return bytesContent == null || bytesContent.length == 0;
+	}
+
+
+	public long getSize() {
+		return bytesContent.length;
+	}
+
+
 	public byte[] getBytes() throws IOException {
 		return bytesContent;
 	}
 
-	@Override
+
 	public InputStream getInputStream() throws IOException {
 		return new ByteArrayInputStream(bytesContent);
 	}
 
-	@Override
+
 	public void transferTo(File dest) throws IOException {
 		try (FileOutputStream outputStream = new FileOutputStream(dest)) {
 			outputStream.write(bytesContent);
 		}
 	}
+
 
 }

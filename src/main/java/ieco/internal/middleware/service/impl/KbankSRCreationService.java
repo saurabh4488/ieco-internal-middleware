@@ -15,6 +15,7 @@ import ieco.internal.middleware.feignclient.GatewayClient;
 import ieco.internal.middleware.feignclient.PwcCustomerClient;
 import ieco.internal.middleware.feignclient.ZohoClient;
 import ieco.internal.middleware.util.AESCBCPKCS5Encryption;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,13 +30,13 @@ import java.security.GeneralSecurityException;
 @Service
 public class KbankSRCreationService {
 	private org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass());
-	@Autowired
+	@RestClient
 	private GatewayClient gatewayClient;
 
-	@Autowired
+	@RestClient
 	private PwcCustomerClient iecoClient;
 	
-	@Autowired
+	@RestClient
 	private ZohoClient zohoClient;
 	
 	@Value("${orgId}")

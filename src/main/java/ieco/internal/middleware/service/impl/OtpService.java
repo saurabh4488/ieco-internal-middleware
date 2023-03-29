@@ -11,13 +11,14 @@ import ieco.internal.middleware.feignclient.RedisCacheClient;
 import ieco.internal.middleware.feignclient.ZohoClient;
 import ieco.internal.middleware.util.CustomerConstants;
 import ieco.internal.middleware.util.NullCheck;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,17 +34,17 @@ public class OtpService {
     /**
      * The cache service impl.
      */
-    @Autowired
+    @RestClient
     private PwcOtpClient otpClient;
 
 
-    @Autowired
+    @RestClient
     private ZohoClient zohoClient;
 
-    @Autowired
+    @RestClient
     private PwcCustomerClient iecoCustomerClient;
 
-    @Autowired
+    @RestClient
     private RedisCacheClient redisCacheClient;
     @Autowired
     private ObjectMapper objectMapper;
@@ -301,8 +302,8 @@ public class OtpService {
 
     }
 
-    public ZohoAttachmentResponse uploadFile(MultipartFile file, String id) {
-        log.info("zoho attachment file name {}", file.getName());
+    public ZohoAttachmentResponse uploadFile(FileUpload file, String id) {
+        log.info("zoho attachment file name {}", file.fileName());
         ZohoAttachmentResponse attachmentRes = zohoClient.ticketAttachment(file, id);
         log.info("zoho attachment api response {}", attachmentRes);
         attachmentRes.setStatus(OK);

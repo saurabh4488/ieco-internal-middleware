@@ -12,12 +12,9 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface WaitingListSettingsRepository extends JpaRepository<WaitingListSettingsEntity, Integer> {
-	
-	//nextval currval
-	 @Query(value = "SELECT SEQ_WAITINGLIST_NUMBER.nextval FROM dual", nativeQuery = 
-	            true)
-	     Integer getCurrentWaitingId();
-	
-	
-   
+
+    //nextval currval
+    @Query(value = "SELECT SEQ_WAITINGLIST_NUMBER.nextval FROM dual")
+    Integer getCurrentWaitingId();
+
 }

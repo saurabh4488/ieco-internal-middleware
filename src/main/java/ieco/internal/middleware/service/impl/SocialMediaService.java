@@ -13,14 +13,15 @@ import ieco.internal.middleware.repository.AdminDetailsRepository;
 import ieco.internal.middleware.repository.SocialMediaContentRepository;
 import ieco.internal.middleware.repository.SocialMediaUsersRepository;
 import ieco.internal.middleware.util.NullCheck;
+import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @Service
@@ -163,7 +164,7 @@ public class SocialMediaService extends AbstractResponse {
         return responseError(AUTHENTICATION_IS_REQUIRED_TO_ACCESS_THIS_RESOURCE, ResponseCodeEnum.EMAIL_NOT_EXISTS);
     }
     
-    public ResponseObject saveDetails(DigitalLandingStaticContentVO req, String token) {
+    public ResponseObject saveDetails(DigitalLandingStaticContentVO req, String token) throws InvocationTargetException, IllegalAccessException {
     	if (token != null && !token.isEmpty()) {
 
 			if (validateToken(token)) {

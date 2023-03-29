@@ -10,6 +10,9 @@ import ieco.internal.middleware.domain.request.RequestData;
 import ieco.internal.middleware.domain.response.ResponseObject;
 import ieco.internal.middleware.domain.response.ZohoAttachmentResponse;
 import ieco.internal.middleware.service.impl.OtpService;
+import org.jboss.resteasy.reactive.MultipartForm;
+import org.jboss.resteasy.reactive.RestForm;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.Map;
@@ -86,7 +88,7 @@ public class OtpController {
 
   @PostMapping(value = "/zoho/ticket/attachment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 
-  public ZohoAttachmentResponse handleFileUpload(@RequestParam("file") MultipartFile file,
+  public ZohoAttachmentResponse handleFileUpload(@RestForm("file") FileUpload file,
       @RequestParam("ticketId") String ticketId) {
     log.info("Request Received for zoho attachment ");
     return otpService.uploadFile(file, ticketId);

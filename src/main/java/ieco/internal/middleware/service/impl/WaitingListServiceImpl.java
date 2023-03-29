@@ -15,22 +15,25 @@ import ieco.internal.middleware.model.WaitingListSettingsEntity;
 import ieco.internal.middleware.repository.AdminDetailsRepository;
 import ieco.internal.middleware.repository.WaitingListRepository;
 import ieco.internal.middleware.repository.WaitingListSettingsRepository;
+import ieco.internal.middleware.repository.WaitingRepository;
 import ieco.internal.middleware.service.WaitingListService;
 import ieco.internal.middleware.util.NullCheck;
 import ieco.internal.middleware.util.RestUtility;
 import ieco.internal.middleware.xml.transformation.XMLTransformer;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import io.quarkus.mailer.Mail;
+import io.quarkus.mailer.Mailer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,19 +41,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -86,6 +87,10 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
     public String appURL;
     @Value("${cherry.url}")
     public String cherryURL;
+
+    @Autowired
+    WaitingRepository waitingRepository;
+
     @Autowired
     public RestUtility restUtility;
     /**
@@ -98,7 +103,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
     @Autowired
     private AdminDetailsRepository adminDetailsRepository;
     @Autowired
-    private JavaMailSender mailSender;
+    private Mailer mailer;
     @Autowired
     private WaitingListSettingsRepository waitingListSettingsRepository;
     @Autowired
@@ -107,9 +112,9 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
     private ObjectMapper mapper;
     @Autowired
     private XMLTransformer transformer;
-    @Autowired
+    @RestClient
     private SMSClient gatewayClient;
-    @Autowired
+    @RestClient
     private GWAccessTokenClient tokenClient;
     @Value("${sms.smsClientId}")
     private String clientId;
@@ -552,7 +557,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
 
                 if (validateToken(request.getUserId(), token)) {
 
-                    waitingListRepository.updateAccessFields(request.getEmailList(), 0, "Y", new Date(),
+                    waitingRepository.updateAccessFields(request.getEmailList(), 0, "Y", new Date(),
                             request.getUserId());
 
                     CompletableFuture.runAsync(() -> {
@@ -600,7 +605,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             if (token != null && !token.isEmpty()) {
 
                 if (validateToken(request.getUserId(), token)) {
-                    waitingListRepository.deleteUser(request.getEmailList());
+                    waitingRepository.deleteUser(request.getEmailList());
                     return responseSuccess("Users deleted successfully", ResponseCodeEnum.DETAILS_UPADTED_SUCCESSFULLY);
                 }
                 return responseError(PROVIDE_VALID_TOKEN, ResponseCodeEnum.TOKEN_VALIDATION_FAILED);
@@ -733,7 +738,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
         return patternToCheckInteger.matcher(strNum).matches();
     }
 
-    public void sendConfirmationMail(Integer waitingListumber, String refCode, String toEmail) {
+    public void sendConfirmationMail(Integer waitingListumber, String refCode, String toEmail) throws IOException {
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
         velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
         velocityEngine.init();
@@ -744,34 +749,42 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
         velocityContext.put("uniqueLink", appURL + REFCODE + refCode);
         velocityContext.put("domain", appURL);
 
-        Resource resourceGif = new ClassPathResource("images/Cherry_Beta-mailer1_GIF.gif");
-        Resource resourceSmile = new ClassPathResource("images/smile.png");
-        Resource resourceThumb = new ClassPathResource("images/thumb.png");
-        Resource resourceFb = new ClassPathResource("images/fb.png");
-        Resource resourceInsta = new ClassPathResource("images/insta.png");
-        Resource resourceCherryImage = new ClassPathResource("images/Cherry-Img.png");
+//        Path gifFilePath= Paths.get(String.valueOf(this.getClass().getResource("images/Cherry_Beta-mailer1_GIF.gif")));
+//        Path smileFilePath= Paths.get(String.valueOf(this.getClass().getResource("images/Cherry_Beta-mailer1_GIF.gif")));
+//        Path thumbFilePath= Paths.get(String.valueOf(this.getClass().getResource("images/Cherry_Beta-mailer1_GIF.gif")));
+//        Path fbFilePath= Paths.get(String.valueOf(this.getClass().getResource("images/Cherry_Beta-mailer1_GIF.gif")));
+//        Path instafFilePath= Paths.get(String.valueOf(this.getClass().getResource("images/Cherry_Beta-mailer1_GIF.gif")));
+//        Path cherryImageFilePath= Paths.get(String.valueOf(this.getClass().getResource("images/Cherry_Beta-mailer1_GIF.gif")));
+
+        InputStream resourceGif = this.getClass().getResourceAsStream("images/Cherry_Beta-mailer1_GIF.gif");
+        byte[] gifBytes = IOUtils.toByteArray(resourceGif);
+        InputStream resourceSmile = this.getClass().getResourceAsStream("images/smile.png");
+        byte[] smileBytes = IOUtils.toByteArray(resourceSmile);
+        InputStream resourceThumb = this.getClass().getResourceAsStream("images/thumb.png");
+        byte[] thumbBytes = IOUtils.toByteArray(resourceThumb);
+        InputStream resourceFb = this.getClass().getResourceAsStream("images/fb.png");
+        byte[] fbBytes = IOUtils.toByteArray(resourceFb);
+        InputStream resourceInsta = this.getClass().getResourceAsStream("images/insta.png");
+        byte[] instaBytes = IOUtils.toByteArray(resourceInsta);
+        InputStream resourceCherryImage = this.getClass().getResourceAsStream("images/Cherry-Img.png");
+        byte[] cherryImgBytes = IOUtils.toByteArray(resourceCherryImage);
 
         StringWriter stringWriter = new StringWriter();
         velocityEngine.mergeTemplate("templates/WaitListConfirmationMail.vm", "UTF-8", velocityContext, stringWriter);
 
         // this is assuming you're sending HTML email using MimeMessageHelper
 
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        Mail mail=Mail.withText(toEmail,emailSubject,stringWriter.toString())
+                        .setFrom(emailFrom)
+                        .setSubject(emailSubject)
+                .addInlineAttachment("Cherry_Beta-mailer1_GIF.gif",gifBytes,"image/jpeg","Cherry_Beta-mailer1_GIF")
+                .addInlineAttachment("smile.png",smileBytes,"image/png","smile")
+                .addInlineAttachment("thumb.png",thumbBytes,"image/png","thumb")
+                .addInlineAttachment("fb.png",fbBytes,"image/png","fb")
+                .addInlineAttachment("insta.png",instaBytes,"image/png","insta")
+                .addInlineAttachment("Cherry-Img.png",cherryImgBytes,"image/png","cherryImage");
 
-        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-
-        mimeMessageHelper.setFrom(emailFrom);
-        mimeMessageHelper.setTo(toEmail);
-        mimeMessageHelper.setSubject(emailSubject);
-        mimeMessageHelper.setSentDate(new Date());
-        mimeMessageHelper.setText(stringWriter.toString(), true);
-        mimeMessageHelper.addInline("Cherry_Beta-mailer1_GIF", resourceGif);
-        mimeMessageHelper.addInline("smile", resourceSmile);
-        mimeMessageHelper.addInline("thumb", resourceThumb);
-        mimeMessageHelper.addInline("fb", resourceFb);
-        mimeMessageHelper.addInline("insta", resourceInsta);
-        mimeMessageHelper.addInline("cherryImage", resourceCherryImage);
-        mailSender.send(mimeMessage);
+        mailer.send(mail);
         log.info("mail sent successfully for the user {}", toEmail);
 
     }
@@ -779,6 +792,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
     public ResponseObject debounceCheck(String email) {
         DebounceResponse debounceResponse = null;
         try {
+
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://api.debounce.io/v1")
                     .queryParam("email", email).queryParam("api", "5fcb5938ca76a");
 

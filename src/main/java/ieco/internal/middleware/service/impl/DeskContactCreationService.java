@@ -7,6 +7,7 @@ import ieco.internal.middleware.domain.response.ContactDetailsResponse;
 import ieco.internal.middleware.domain.response.ZohoContactCreationResponse;
 import ieco.internal.middleware.enums.ZohoLeadStage;
 import ieco.internal.middleware.feignclient.ZohoClient;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,7 @@ public class DeskContactCreationService {
 	public static final String CONTACT = "Contact";
 	public static final String FAILURE = "Failure";
 	public static final String DUPLICATE = "Duplicate";
-	@Autowired
+	@RestClient
 	private ZohoClient zohoClient;
 
 	@Value("${orgId}")

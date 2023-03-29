@@ -2,20 +2,18 @@ package ieco.internal.middleware.feignclient;
 
 import ieco.internal.middleware.domain.request.KraProcessDocRequestVO;
 import ieco.internal.middleware.domain.response.ResponseObject;
-import feign.codec.Encoder;
-import feign.form.spring.SpringFormEncoder;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Scope;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.ws.rs.Path;
 
 /**
  * The interface KRA file client to extract CVL KRA file zip.
  */
 
-@FeignClient(name = "KRAFileClient", url="${kraProcessClient}", configuration = { KRAFileClient.MultipartSupportConfig.class })
+@Path("http://10.51.164.10:3000/")
+@RegisterRestClient
 public interface KRAFileClient {
 
 	
@@ -24,16 +22,5 @@ public interface KRAFileClient {
     ResponseObject processCvlKraDocumentsZip(KraProcessDocRequestVO kraProcessDocRequestBody);
 
 
-	/**
-     * The type Multipart support config.
-     */
-	class MultipartSupportConfig {
-        @Bean
-        @Primary
-        @Scope("prototype")
-        public Encoder feignFormEncoder() {
-            return new SpringFormEncoder();
-        }
-    }
 	
 }

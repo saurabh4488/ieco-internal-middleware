@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,7 +28,7 @@ public class PDFGenarator   {
 	//@Override
 	@PostMapping("/genPDF")
 	public String renderMergedOutputModel(@RequestBody Map<String, String> model
-	) {
+	) throws DocumentException, IOException {
 	ByteArrayOutputStream baos = createTemporaryOutputStream();
 
 	        // Apply preferences and build metadata.
@@ -51,7 +52,7 @@ public class PDFGenarator   {
 
 	//@Override
 	protected void buildPdfDocument(Map<String, String> model, Document doc
-	) {
+	) throws DocumentException, IOException {
 
 	Font font_blue = FontFactory.getFont(FontFactory.TIMES_ROMAN, 13.0f, Font.BOLD);
 	       font_blue.setColor(BaseColor.BLUE);

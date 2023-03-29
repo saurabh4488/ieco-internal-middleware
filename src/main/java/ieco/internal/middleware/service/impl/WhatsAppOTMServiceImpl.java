@@ -15,6 +15,7 @@ import ieco.internal.middleware.util.CustomerUtil;
 import ieco.internal.middleware.util.NullCheck;
 import ieco.internal.middleware.util.SMSTriggerUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +27,13 @@ import java.util.LinkedList;
 @Slf4j
 public class WhatsAppOTMServiceImpl extends AbstractResponse implements WhatsAppOTMService {
 
-    @Autowired
+    @RestClient
     private PwcCustomerClient pwcCustomerClient;
 
     @Autowired
     private CustomerUtil customerUtil;
 
-    @Autowired
+    @RestClient
     private WhatsAppClient whatsAppClient;
 
     @Autowired

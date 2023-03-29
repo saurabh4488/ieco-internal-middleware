@@ -1,11 +1,14 @@
 package ieco.internal.middleware.feignclient;
 
 import ieco.internal.middleware.domain.response.WhatsAppPushMessageResponse;
-import org.springframework.cloud.openfeign.FeignClient;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "whatsapp-client",url="https://media.smsgupshup.com/GatewayAPI/rest")
+import javax.ws.rs.Path;
+
+@Path("https://media.smsgupshup.com/GatewayAPI/rest")
+@RegisterRestClient
 public interface WhatsAppClient {
 	
 	@GetMapping

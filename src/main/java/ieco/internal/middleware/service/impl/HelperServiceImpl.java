@@ -7,6 +7,7 @@ import ieco.internal.middleware.domain.response.ResponseObject;
 import ieco.internal.middleware.feignclient.UtilityServiceClient;
 import ieco.internal.middleware.service.HelperService;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ import java.util.LinkedHashMap;
 @Slf4j
 public class HelperServiceImpl extends AbstractResponse implements HelperService {
 
-    @Autowired
+    @RestClient
     UtilityServiceClient utilityServiceClient;
     @Override
     public ResponseEntity<HashMap<String,String>> getCustomerType(CustomerTypeRequest customerTypeRequest) {

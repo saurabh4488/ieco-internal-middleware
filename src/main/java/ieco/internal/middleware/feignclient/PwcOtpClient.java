@@ -2,13 +2,13 @@ package ieco.internal.middleware.feignclient;
 
 import ieco.internal.middleware.domain.request.OtpRequest;
 import ieco.internal.middleware.domain.response.ResponseObject;
-import org.springframework.cloud.openfeign.FeignClient;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
-@FeignClient(name="ieco-otp")
+@RegisterRestClient
 public interface PwcOtpClient {
 	
 	@PostMapping("/v1/otp/validate")

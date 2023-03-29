@@ -11,6 +11,7 @@ import ieco.internal.middleware.domain.response.C2CLoginResponse;
 import ieco.internal.middleware.domain.response.CustomerDetailsResponse;
 import ieco.internal.middleware.util.AESCBCPKCS5Encryption;
 import ieco.internal.middleware.util.RestUtility;
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

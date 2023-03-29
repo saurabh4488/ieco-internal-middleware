@@ -8,6 +8,8 @@ import ieco.internal.middleware.domain.response.ResponseObject;
 import ieco.internal.middleware.domain.response.TicketCreationResponse;
 import org.springframework.http.ResponseEntity;
 
+import java.lang.reflect.InvocationTargetException;
+
 public interface ZohoService {
 
 /**
@@ -35,6 +37,6 @@ public <T> ResponseEntity<T> contactCreation(DeskContactCreationRequest contactC
  */
 public TicketCreationResponse createTicket(TicketCreationRequest req);
 
-public ResponseObject updateTicket(TPTicketUpdateRequest request);
+public ResponseObject updateTicket(TPTicketUpdateRequest request) throws InvocationTargetException, IllegalAccessException;
 	
 }

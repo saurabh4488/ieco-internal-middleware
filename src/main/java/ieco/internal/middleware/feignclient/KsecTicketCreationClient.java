@@ -3,12 +3,15 @@ package ieco.internal.middleware.feignclient;
 import ieco.internal.middleware.domain.request.KsecCRMMasterRequest;
 import ieco.internal.middleware.domain.request.KsecTicketCreationRequest;
 import ieco.internal.middleware.domain.response.KsecTicketCreationResponse;
-import org.springframework.cloud.openfeign.FeignClient;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(name="Ksec-ticket-creation-client",url="${ksecurl}")
+import javax.ws.rs.Path;
+
+@Path("https://uatweb.kotakseconline.com/KSBusinessLayerFrwk/Chatbot")
+@RegisterRestClient
 public interface KsecTicketCreationClient {
 
 	@PostMapping(value="/CRMQueryInsert")

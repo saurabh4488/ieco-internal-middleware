@@ -13,10 +13,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TPRepository extends JpaRepository<TPTicketUpdateDetails, Integer> {
 	
-	
-	
-	
-	
-	
+
    
 }

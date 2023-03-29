@@ -29,18 +29,10 @@ public interface WaitingListRepository extends JpaRepository<WaitingListDetailsE
     
     List<WaitingListDetailsEntity> findByEmailIdContainingIgnoreCase(String chars);
     
-    @Query(value = "SELECT SEQ_WAITINGLIST_NUMBER.nextval FROM dual", nativeQuery = 
-            true)
-     Integer getNextWaitingId();
-    
-    @Modifying
-    @Query(value = "update WAITINGLIST_USER_DETAILS wd set wd.WAITING_LIST_NUMBER=:wlNum, wd.ISACCESS_PROVIDED=:status,wd.ACCESS_ALLOWED_ON=:date,wd.ACCESS_ALLOWED_BY=:allowedBy where wd.EMAIL_ID IN (:emailId)",nativeQuery=true)
-    void updateAccessFields(@Param("emailId") List<String> emailId,@Param("wlNum") Integer wlNum, @Param("status") String status,Date date,String allowedBy);
-    
-    
-    @Modifying
-    @Query(value = "delete from WAITINGLIST_USER_DETAILS wd where wd.EMAIL_ID IN (:emailId)",nativeQuery=true)
-    void deleteUser(@Param("emailId") List<String> emailId);
+//    @Query(value = "SELECT SEQ_WAITINGLIST_NUMBER.nextval FROM dual", nativeQuery =
+//            true)
+//     Integer getNextWaitingId();
+
     
     Page<WaitingListDetailsEntity> findByIsAccessProvided(String searchTerm,Pageable pageable);
 

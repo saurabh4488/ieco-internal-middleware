@@ -2,23 +2,20 @@ package ieco.internal.middleware.feignclient;
 
 import ieco.internal.middleware.domain.response.ResponseObject;
 import ieco.internal.middleware.enums.DmsDocumentTypeEnum;
-import feign.Logger;
-import feign.codec.Encoder;
-import feign.form.spring.SpringFormEncoder;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Scope;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.jboss.resteasy.reactive.RestForm;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
+import javax.ws.rs.Path;
 
 /**
  * The interface Dms integration client.
  *
  * @author AlokeT
  */
-@FeignClient(name = "ieco-integration/v1/integration/dms", configuration = {DmsIntegrationClient.MultipartSupportConfig.class})
+@RegisterRestClient
 public interface DmsIntegrationClient {
 
 
@@ -51,7 +48,7 @@ public interface DmsIntegrationClient {
 	 * @return the integer
 	 */
 	@PostMapping(value = "/updateDoc/{documentId}", consumes = {"multipart/form-data"})
-	public Integer updateDmsDocument(@RequestHeader(value = "customerId", required = false) Integer customerId, @PathVariable(value = "documentId") String documentId, @RequestBody MultipartFile multipartFile);
+	public Integer updateDmsDocument(@RequestHeader(value = "customerId", required = false) Integer customerId, @PathVariable(value = "documentId") String documentId, @RestForm FileUpload multipartFile);
 
 	/**
 	 * Delete existing doc by id integer.
@@ -64,37 +61,9 @@ public interface DmsIntegrationClient {
 
 	@PostMapping(value = "/uploadDoc/{customerId}/{dmsDocumentType}", consumes = "multipart/form-data")
 	ResponseEntity<ResponseObject> uploadDocuments(@RequestHeader(value = "sessionId", required = false) String sessionId,
-												   @RequestPart(value = "file") MultipartFile file,
+												   @RestForm(value = "file") FileUpload file,
 												   @PathVariable(value = "dmsDocumentType") DmsDocumentTypeEnum dmsDocumentTypeEnum,
 												   @PathVariable(value = "customerId") Integer customerId);
 
 
-	/**
-	 * The type Multipart support config.
-	 */
-	//@Configuration
-	class MultipartSupportConfig {
-		/**
-		 * Feign form encoder encoder.
-		 *
-		 * @return the encoder
-		 */
-	    @Bean
-	    @Primary
-	    @Scope("prototype")
-	    public Encoder feignFormEncoder() {
-	        return new SpringFormEncoder();
-	    }
-	    
-
-		/**
-		 * Feign logger level logger . level.
-		 *
-		 * @return the logger . level
-		 */
-		@Bean
-		Logger.Level feignLoggerLevel() {
-			return Logger.Level.HEADERS;
-		}
-	}
 }

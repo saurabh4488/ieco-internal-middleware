@@ -3,7 +3,7 @@ package ieco.internal.middleware.feignclient;
 import ieco.internal.middleware.domain.response.DigiLockerAccessTokenRes;
 import ieco.internal.middleware.domain.response.DigiLockerIssuedDocumentsRes;
 import ieco.internal.middleware.domain.response.DigiLockerPanRes;
-import org.springframework.cloud.openfeign.FeignClient;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+import javax.ws.rs.Path;
 
-@FeignClient(name = "digi-locker", url = "${digilocker.baseurl}")
+@Path("https://api.digitallocker.gov.in/public/oauth2")
+@RegisterRestClient
 public interface DigiLockerClient {
 
     @PostMapping("/1/token")

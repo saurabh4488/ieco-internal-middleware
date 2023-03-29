@@ -224,7 +224,7 @@ String ip = InetAddress.getLoopbackAddress().getHostAddress();
 
 
 		} catch (JSchException | SftpException e) {
-			log.error("Error in connecting to server {}",);
+			log.error("Error in connecting to server {}",e.getMessage());
 		} catch (IOException e) {
 			log.error("Error in uploading file {}", e.getLocalizedMessage());
 		} catch (Exception e) {

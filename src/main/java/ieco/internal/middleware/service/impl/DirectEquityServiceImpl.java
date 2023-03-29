@@ -12,6 +12,7 @@ import ieco.internal.middleware.service.DirectEquityService;
 import ieco.internal.middleware.util.DirectEquityUtil;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hibernate.exception.DataException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +44,10 @@ public class DirectEquityServiceImpl extends AbstractResponse implements DirectE
 
     @Autowired
     private ObjectMapper mapper;
-    @Autowired
+    @RestClient
     private PwcCustomerClient customerClient;
 
-    @Autowired
+    @RestClient
     private RedisCacheClient redisCacheClient;
     @Autowired
     private ObjectMapper objectMapper;

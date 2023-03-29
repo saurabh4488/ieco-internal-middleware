@@ -3,9 +3,9 @@ package ieco.internal.middleware.util;
 import ieco.internal.middleware.enums.PatternType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
 
@@ -733,14 +733,6 @@ public class CommonUtils {
         return null;
     }
 
-    /**
-     * Convert image byte [ ].
-     *
-     * @param encodedImage the encoded image
-     * @return the byte [ ]
-     * @throws IecoRuntimeException the ieco runtime exception
-     * @throws IOException          the io exception
-     */
     public static byte[] convertImage(String encodedImage) throws IOException {
         byte[] decodedString = Base64.getDecoder().decode(encodedImage);
         InputStream in = new ByteArrayInputStream(decodedString);
@@ -761,15 +753,6 @@ public class CommonUtils {
         return f.toByteArray();
     }
 
-    /**
-     * Scale image byte array output stream.
-     *
-     * @param bufferedImage the buffered image
-     * @param scaleFactor   the scale factor
-     * @return the byte array output stream
-     * @throws IecoRuntimeException the ieco runtime exception
-     * @throws IOException          the io exception
-     */
     private static ByteArrayOutputStream scaleImage(BufferedImage bufferedImage, double scaleFactor)
             throws IOException {
         int origWidth = bufferedImage.getWidth();

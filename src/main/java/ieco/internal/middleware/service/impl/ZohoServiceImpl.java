@@ -9,13 +9,15 @@ import ieco.internal.middleware.model.TPTicketUpdateDetails;
 import ieco.internal.middleware.repository.TPRepository;
 import ieco.internal.middleware.service.HelperService;
 import ieco.internal.middleware.service.ZohoService;
+import org.apache.commons.beanutils.BeanUtils;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,7 +28,7 @@ public class ZohoServiceImpl extends AbstractResponse implements ZohoService {
 
     private org.slf4j.Logger log = LoggerFactory.getLogger(ZohoServiceImpl.class);
 
-    @Autowired
+    @RestClient
     private ZohoClient zohoClient;
 
 
@@ -116,7 +118,7 @@ public class ZohoServiceImpl extends AbstractResponse implements ZohoService {
     }
 
     @Override
-    public ResponseObject updateTicket(TPTicketUpdateRequest request) {
+    public ResponseObject updateTicket(TPTicketUpdateRequest request) throws InvocationTargetException, IllegalAccessException {
 
 
         TPTicketUpdateDetails ticketUpdateDetails = TPTicketUpdateDetails.builder().build();

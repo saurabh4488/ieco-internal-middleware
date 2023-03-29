@@ -1,12 +1,15 @@
 package ieco.internal.middleware.feignclient;
 
 import ieco.internal.middleware.domain.response.ZohoTokenGenResponse;
-import org.springframework.cloud.openfeign.FeignClient;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.ws.rs.Path;
 
-@FeignClient(name="tokenGenclient",url="https://accounts.zoho.in/oauth/v2")
+
+@Path("https://accounts.zoho.in/oauth/v2")
+@RegisterRestClient
 public interface ZohoTokenGenClient {
 
 	@PostMapping("${Zohotokengeneration}")

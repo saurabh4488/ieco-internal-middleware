@@ -4,14 +4,18 @@ import ieco.internal.middleware.domain.request.DigitalLandingStaticContentVO;
 import ieco.internal.middleware.domain.response.ResponseObject;
 import ieco.internal.middleware.service.impl.SocialMediaService;
 import ieco.internal.middleware.util.NullCheck;
+import org.jboss.resteasy.reactive.MultipartForm;
+import org.jboss.resteasy.reactive.RestForm;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Base64;
 
@@ -25,8 +29,8 @@ public class DigitalLandingController {
 	@PostMapping(value = "/saveCidDetails")
 	public ResponseEntity<ResponseObject> saveCidDetails(@RequestParam("cid") String cid,@RequestParam("title") String title,
 														 @RequestParam("bulletPoints") String bulletPoints,@RequestParam("formTitle") String formTitle,
-														 @RequestParam(value = "webPhoto", required = false) MultipartFile webPhoto ,
-														 @RequestParam(value = "mobPhoto", required = false) MultipartFile mobPhoto,
+														 @RestForm(value = "webPhoto") FileUpload webPhoto ,
+														 @RestForm(value = "mobPhoto") FileUpload mobPhoto,
 														 @RequestParam("thankyouMessage") String thankyouMessage,@RequestParam("campaignName") String campaignName,
 														 @RequestParam("offerText") String offerText,@RequestParam("offerDisclaimer") String offerDisclaimer,
 														 @RequestParam("offerTagURL") String offerTagURL,
@@ -50,7 +54,14 @@ public class DigitalLandingController {
 		req.setDeepLinkingURL(deepLinkingURL);
 
 		if (new NullCheck<>(webPhoto).isNotNull()) {
-			req.setWebPhoto(webPhoto.getBytes());
+			File webPhotoBytes=new File(webPhoto.uploadedFile().toString());
+
+			try(FileInputStream fl = new FileInputStream(webPhotoBytes)){
+				byte[] webPhotoBytesArr = new byte[(int)webPhotoBytes.length()];
+				fl.read(webPhotoBytesArr);
+				req.setWebPhoto(webPhotoBytesArr);
+			}
+
 		}else {
 			if (new NullCheck<>(webImage).isNotNull()) {
 				byte[] webImageDecodedContent = Base64.getDecoder().decode(webImage);
@@ -59,7 +70,15 @@ public class DigitalLandingController {
 		}
 
 		if (new NullCheck<>(mobPhoto).isNotNull()) {
-			req.setMobPhoto(mobPhoto.getBytes());
+
+			File mobPhotoBytes=new File(webPhoto.uploadedFile().toString());
+
+			try(FileInputStream fl = new FileInputStream(mobPhotoBytes)){
+				byte[] mobPhotoBytesArr = new byte[(int)mobPhotoBytes.length()];
+				fl.read(mobPhotoBytesArr);
+				req.setMobPhoto(mobPhotoBytesArr);
+			}
+
 		}else {
 			if (new NullCheck<>(mobImage).isNotNull()) {
 				byte[] mobImageDecodedContent = Base64.getDecoder().decode(mobImage);

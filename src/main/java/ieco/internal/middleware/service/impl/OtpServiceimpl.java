@@ -35,8 +35,7 @@ public class OtpServiceimpl {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("ContentType", "application/json");
 
-		ResponseEntity<String> otpResponse = restTemplate.postForEntity("",
-				new HttpEntity<OtpRequest>(otpReq, httpHeaders), String.class);
+		ResponseEntity<String> otpResponse = restTemplate.postForEntity("", new HttpEntity<OtpRequest>(otpReq, httpHeaders), String.class);
 		log.info("OTP Validation response from PwC : {}",otpResponse.getBody());
 		JsonNode actualObj = new ObjectMapper().readTree(otpResponse.getBody());
 		if (actualObj.get("status").asText().equalsIgnoreCase("200 ok")) {

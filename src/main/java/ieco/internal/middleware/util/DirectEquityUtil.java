@@ -2,7 +2,7 @@ package ieco.internal.middleware.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ieco.de.domain.response.DEAppinitResponseVO;
+import ieco.internal.middleware.domain.response.DEAppinitResponseVO;
 import ieco.internal.middleware.domain.response.AbstractResponse;
 import ieco.internal.middleware.exception.CustomerErrorCode;
 import ieco.internal.middleware.exception.DirectEquityExceptionFactory;

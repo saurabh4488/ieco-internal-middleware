@@ -8,6 +8,7 @@ import ieco.internal.middleware.domain.response.KsecTicketCreationResponse;
 import ieco.internal.middleware.domain.response.TicketUpdateResponse;
 import ieco.internal.middleware.feignclient.KsecTicketCreationClient;
 import ieco.internal.middleware.feignclient.ZohoClient;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,13 +18,13 @@ import org.springframework.stereotype.Service;
 public class KsecQueryCreationService {
 
 	private org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass());
-	@Autowired
+	@RestClient
 	private KsecTicketCreationClient ksecTicketCreationClient;
 
 	@Autowired
 	private OtpService otpService;
 
-	@Autowired
+	@RestClient
 	private ZohoClient zohoClient;
 
 	@Value("${orgId}")

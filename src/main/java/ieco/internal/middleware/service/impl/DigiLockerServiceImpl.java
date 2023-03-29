@@ -20,16 +20,16 @@ import feign.FeignException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -39,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -62,7 +63,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
     private DigiLockerClientRepository dgClientRepository;
     @Autowired
     private DigiLockerCustomerRepository dgCustRepository;
-    @Autowired
+    @RestClient
     private DigiLockerClient dgClient;
     @Autowired
     private ObjectWriter objetWriter;
@@ -140,8 +141,16 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
                             ResponseObject res = responseEntityMultipleDataCookieSuccess("Data fetched successfully!",
                                     ResponseCodeEnum.DIGILOCKER_DATA_FETCHED_SUCCESSFULLY, attrList, mapKeyList);
 
-                            CompletableFuture.runAsync(() -> saveInDb(req.getIecoID(), tokenRes, isAadhaarDataReceived, isAadhaarPdfReceived, "N", "N", getStringFromJSON(res),
-                                    aadharXML, aadhaarDoc, req.isCelusion()));
+                            CompletableFuture.runAsync(() -> {
+                                try {
+                                    saveInDb(req.getIecoID(), tokenRes, isAadhaarDataReceived, isAadhaarPdfReceived, "N", "N", getStringFromJSON(res),
+                                            aadharXML, aadhaarDoc, req.isCelusion());
+                                } catch (InvocationTargetException e) {
+                                    throw new RuntimeException(e);
+                                } catch (IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
 
 
                             return res;
@@ -150,7 +159,15 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
                     } else {
                         log.info("Aadhaar not presented in DigiLocker for the customer {}", req.getIecoID());
                         ResponseObject res = responseError("Aadhaar not found in the Digi Locker", ResponseCodeEnum.DIGILOCKER_DATA_FETCH_FAILED);
-                        CompletableFuture.runAsync(() -> saveInDb(req.getIecoID(), tokenRes, "N", "N", "N", "N", getStringFromJSON(res)));
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                saveInDb(req.getIecoID(), tokenRes, "N", "N", "N", "N", getStringFromJSON(res));
+                            } catch (InvocationTargetException e) {
+                                throw new RuntimeException(e);
+                            } catch (IllegalAccessException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
 
 
                         return res;
@@ -189,7 +206,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
 
     private void saveInDb(String iecoID, DigiLockerAccessTokenRes tokenRes, String isAadhaarDataReceived,
                           String isAadhaarPdfReceived, String isPANDataReceived, String isPANimageReceived, String finalJSON,
-                          String aadhaarXML, String aadhaarDoc, boolean isCelusion) {
+                          String aadhaarXML, String aadhaarDoc, boolean isCelusion) throws InvocationTargetException, IllegalAccessException {
         Optional<DigiLockerCustomers> dgCust = dgCustRepository.findByCustomerId(iecoID);
         if (dgCust.isPresent()) {
             DigiLockerCustomers dgCustomer = dgCust.get();
@@ -224,7 +241,7 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
     }
 
     private void saveInDb(String iecoID, DigiLockerAccessTokenRes tokenRes, String isAadhaarDataReceived,
-                          String isAadhaarPdfReceived, String isPANDataReceived, String isPANimageReceived, String finalJSON) {
+                          String isAadhaarPdfReceived, String isPANDataReceived, String isPANimageReceived, String finalJSON) throws InvocationTargetException, IllegalAccessException {
         Optional<DigiLockerCustomers> dgCust = dgCustRepository.findByCustomerId(iecoID);
         if (dgCust.isPresent()) {
             DigiLockerCustomers dgCustomer = dgCust.get();

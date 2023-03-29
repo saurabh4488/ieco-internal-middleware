@@ -6,8 +6,10 @@ import ieco.internal.middleware.feignclient.DmsIntegrationClient;
 import ieco.internal.middleware.feignclient.KRAFileClient;
 import ieco.internal.middleware.feignclient.PanOcrClient;
 import ieco.internal.middleware.feignclient.PanOcrRetrieveImgClient;
+import ieco.internal.middleware.repository.SocialMediaRepository;
 import ieco.internal.middleware.repository.SocialMediaUsersRepository;
 import ieco.internal.middleware.util.IecoCustomMultipartFile;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +19,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +31,10 @@ import java.util.List;
 public class PanOcrController {
     public static final String ERROR = "Error";
     private Logger log = LoggerFactory.getLogger(PanOcrController.class);
+
+    @Autowired
+    private SocialMediaRepository socialMediaRepository;
+
     @Autowired
     private PanOcrClient panOcrClient;
     @Autowired
@@ -71,7 +77,7 @@ public class PanOcrController {
         HashMap<String, String> result = new HashMap<>();
         try {
             log.debug("fetchDMSDocs started for extraction");
-            List<String> objectList = socialMediaUsersRepository.fetchDMSDocs(customerId, docTypeId);
+            List<String> objectList = socialMediaRepository.fetchDMSDocs(customerId, docTypeId);
             log.info("objectList - {}", objectList);
             String str = objectList.get(0);
             log.info("objectList str - {}", str);
@@ -80,17 +86,27 @@ public class PanOcrController {
             String dmsDocId = res[1];
             String fileName = res[2];
             String contentType = res[3];
-            MultipartFile multipartFile = null;
+            FileUpload multipartFile = null;
             log.info("downloading file from dmsDocId:{}", dmsDocId);
             fileName = dmsDocId + "_" + fileName;
             multipartFile = downloadDocumentsAsByteArray(custId, fileName, dmsDocId, contentType, null);
-            log.info("multipartFile :{}", multipartFile.getSize());
-            byte[] fileContent = multipartFile.getBytes();
-            String base64Image = Base64.getEncoder().encodeToString(fileContent);
-            result.put("status", "Success");
-            result.put("fileBase64", base64Image);
-            result.put("contentType", contentType);
-            result.put("dmsDocId", dmsDocId);
+            log.info("multipartFile :{}", multipartFile.size());
+
+            File file=new File(multipartFile.uploadedFile().toString());
+            try(FileInputStream fl = new FileInputStream(file)){
+                byte[] multpartFileByteArr = new byte[(int)file.length()];
+                fl.read(multpartFileByteArr);
+                byte[] fileContent = multpartFileByteArr;
+                String base64Image = Base64.getEncoder().encodeToString(fileContent);
+                result.put("status", "Success");
+                result.put("fileBase64", base64Image);
+                result.put("contentType", contentType);
+                result.put("dmsDocId", dmsDocId);
+            }catch (Exception e){
+                e.printStackTrace();
+                log.info("Exception founf in multipart file bytes array ",e.getMessage());
+            }
+
         } catch (Exception e) {
             log.error("Error while fetchDMSDocs file for extraction", e);
             result.put("status", ERROR);
@@ -111,7 +127,7 @@ public class PanOcrController {
                 return fetch(iecoid);
             } else {
                 log.debug("Sending Cvl zip file for image extraction");
-                MultipartFile zipFile = null;
+                FileUpload zipFile = null;
                 log.info("downloading CVL zip from dms:{}", iecoid);
                 DmsDocumentTypeEnum dmsDocumentTypeEnum
                         = DmsDocumentTypeEnum.valueOf(dmsDocumentType);
