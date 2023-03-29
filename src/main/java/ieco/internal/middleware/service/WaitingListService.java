@@ -15,7 +15,7 @@ public interface WaitingListService {
 	public ResponseObject createWaitingListNumber(IncomingEmail email);
 	
 	public ResponseObject verifyRefCode(String refCode);
-	
+
 	public ResponseObject updateDetails(WaitingListDetailsVO req);
 	
 	public ResponseObject saveInvitaionURL(IncomingEmail email);
@@ -35,8 +35,7 @@ public interface WaitingListService {
 	public ResponseObject logout(IncomingEmail loginRequest,String token);
 	
 	public void generateCsvResponse(HttpServletResponse response,String token);
-	
-	public ResponseObject debounceCheck(String email);
+
 	
 	public ResponseObject reduceWaitingListNumber(String minValue, String token);
 }

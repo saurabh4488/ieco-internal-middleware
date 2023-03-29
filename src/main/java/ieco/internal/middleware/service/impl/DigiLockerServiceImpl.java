@@ -269,34 +269,6 @@ public class DigiLockerServiceImpl extends AbstractResponse implements DigiLocke
 
     }
 
-    @Async("asyncExecutor")
-    public CompletableFuture<String> getDocument(String uri, String accessToken) {
-        log.info("getDocument... {}", uri);
-        byte[] f = dgClient.getFile(uri, accessToken);
-        log.info("get document completed");
-        return CompletableFuture.completedFuture(Base64.getEncoder().encodeToString(f));
-
-    }
-
-    @Async("asyncExecutor")
-    public String getDocumentConcurrent(String uri, String accessToken) {
-        log.info("getDocument... {}", uri);
-        byte[] f = dgClient.getFile(uri, accessToken);
-        log.info("get document completed");
-        return Base64.getEncoder().encodeToString(f);
-
-    }
-
-
-    @Async("asyncExecutor")
-    public PanResponseVO getPanData(String uri, String accessToken) {
-        log.info("getting pan data");
-        DigiLockerPanRes panRes = dgClient.getPanData(uri, accessToken);
-        log.info("PAN data res{}", panRes);
-        return PanResponseVO.builder().dob(panRes.getIssuedTo().getPerson().getDob())
-                .name(panRes.getIssuedTo().getPerson().getName()).panNumber(panRes.getNumber()).build();
-    }
-
     ResponseEntity<DigiLockerAccessTokenRes> fetchAccessToken(String code, DigiLockerClientDetails digiClientDetails) {
 
         MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<String, Object>();

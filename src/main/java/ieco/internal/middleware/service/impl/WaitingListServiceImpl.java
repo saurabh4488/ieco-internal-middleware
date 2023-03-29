@@ -45,7 +45,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -789,33 +788,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
 
     }
 
-    public ResponseObject debounceCheck(String email) {
-        DebounceResponse debounceResponse = null;
-        try {
-
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://api.debounce.io/v1")
-                    .queryParam("email", email).queryParam("api", "5fcb5938ca76a");
-
-            ResponseEntity<String> responseEntity = restUtility.get(builder.toUriString(), new HashMap<>(), String.class);
-            log.info("debounce response {}", responseEntity.getBody());
-            debounceResponse = mapper.readValue(responseEntity.getBody(), DebounceResponse.class);
-            if (restUtility.checkStatus(responseEntity)) {
-
-                if (debounceResponse.getSuccess().equalsIgnoreCase("1")
-                        && debounceResponse.getDebounce().getCode().equalsIgnoreCase("5")) {
-                    return responseSuccess(debounceResponse.getDebounce().getReason(),
-                            ResponseCodeEnum.DEBOUNCE_VERIFICATION_SUCCESS);
-                }
-                return responseError(debounceResponse.getDebounce().getReason(),
-                        ResponseCodeEnum.DEBOUNCE_VERIFICATION_FAILED);
-
-            }
-            return responseError(debounceResponse.getDebounce().getError(),
-                    ResponseCodeEnum.DEBOUNCE_VERIFICATION_SUCCESS);
-        } catch (Exception e) {
-            throw new IecoRuntimeException(e.getMessage(), e.getCause());
-        }
-    }
 
     public String sendSms(SMSRequestVO smsreq) {
 

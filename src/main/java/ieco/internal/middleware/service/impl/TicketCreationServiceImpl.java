@@ -2,7 +2,6 @@ package ieco.internal.middleware.service.impl;
 
 import ieco.internal.middleware.domain.request.*;
 import ieco.internal.middleware.domain.response.*;
-import ieco.internal.middleware.feignclient.CleverTapClient;
 import ieco.internal.middleware.feignclient.ZohoClient;
 import ieco.internal.middleware.model.ZohoTicketsFromWhatsApp;
 import ieco.internal.middleware.repository.WhatsAppTicketRepository;
@@ -14,14 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class TicketCreationServiceImpl implements TicketCreationService {
@@ -56,15 +52,6 @@ public class TicketCreationServiceImpl implements TicketCreationService {
 
     @Value("${isZohoEnabled}")
     private boolean isZohoEnable;
-
-    @Value("${cleverTapAccountId}")
-    private String cleverTapAccountId;
-
-    @Value("${cleverTapPasscode}")
-    private String cleverTapPasscode;
-
-    @Autowired
-    private CleverTapClient cleverTapClient;
 
     @Autowired
     private ZohoUtility zohoUtility;
@@ -372,25 +359,6 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             return createTicketForWahtsAppChat(req);
         }
 
-    }
-
-
-    @Async("asyncExecutor")
-    public CompletableFuture<ClevertapEventsResponse> cleverTapEvent(
-            @RequestBody ClevertapEventsRequest clevertapEventsRequest) {
-        log.info("clevertapEventsRequest received req {}", clevertapEventsRequest);
-
-        try {
-            ClevertapEventsResponse responseEntity = cleverTapClient
-                    .uploadCleverTapEvents(clevertapEventsRequest, cleverTapAccountId, cleverTapPasscode);
-            return CompletableFuture.completedFuture(responseEntity);
-        } catch (Exception e) {
-            log.error("Exception in cleverTapEvent method {}", e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-        log.info("Something went wrong in cleverTapEvent");
-        ClevertapEventsResponse clevertapEventsResponse = ClevertapEventsResponse.builder().build();
-        return CompletableFuture.completedFuture(clevertapEventsResponse);
     }
 
 
