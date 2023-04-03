@@ -76,7 +76,7 @@ public class DirectEquityServiceImpl extends AbstractResponse implements DirectE
 
         } catch (InternalServerError | IllegalArgumentException | FeignException
                 | DataException | JsonProcessingException e) {
-            log.error("Error in method getIPOAutoLogin {}", e);
+            log.error("Error in method getIPOAutoLogin -{}", e);
             return new ResponseEntity<>(
                     responseError(IPO_API_FAILURE + e.getMessage(), ResponseCodeEnum.IPO_CASE_API_FAILURE),
                     HttpStatus.valueOf(Integer.parseInt(httperrorStatus)));
