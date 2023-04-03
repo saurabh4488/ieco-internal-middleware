@@ -99,7 +99,7 @@ public class SMSTriggerUtil {
 			SMSResponseVO vo = transformer.smsftransformXMLToJSON(res);
 			log.info("sms response {}", vo);
 		} catch (JAXBException e) {
-			log.error("error occured while transforming xml to pojo {}", e.getMessage());
+			log.error("error occured while transforming xml to pojo - {}", e.getMessage());
 
 		}
 		return "SUCCESS";
