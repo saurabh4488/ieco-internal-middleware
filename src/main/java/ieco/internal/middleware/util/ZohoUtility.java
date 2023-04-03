@@ -70,7 +70,7 @@ public class ZohoUtility {
 // Print the date difference in
 // years, in days, in hours, in
 // minutes, and in seconds
-            log.info("Difference between two dates is: ");
+            log.info("Difference between two dates is ");
 // Print result
             System.out.println(difference_In_Years + " years, " + difference_In_Days + " days, " + difference_In_Hours + " hours, " + difference_In_Minutes + " minutes, " + difference_In_Seconds + " seconds"); //NOSONAR
 //compare the two user input
