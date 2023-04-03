@@ -99,7 +99,7 @@ public class SMSTriggerUtil {
 			SMSResponseVO vo = transformer.smsftransformXMLToJSON(res);
 			log.info("sms response {}", vo);
 		} catch (JAXBException e) {
-			log.error("error occured while transforming xml to pojo {}", e);
+			log.error("error occured while transforming xml to pojo {}", e.getMessage());
 
 		}
 		return "SUCCESS";
@@ -116,13 +116,7 @@ public class SMSTriggerUtil {
 		requestMap.add("grant_type", grantType);
 		requestMap.add("client_id", clientId);
 		requestMap.add("client_secret", clientSecret);
-		/*
-		 * HttpEntity<MultiValueMap<String, String>> request = new
-		 * HttpEntity<MultiValueMap<String, String>>(requestMap, headers);
-		 * HttpEntity<String> amresponse = restTemplate.( accessTokenUrl,
-		 * HttpMethod.POST, request, String.class);
-		 * accessToken=mapper.readValue(amresponse.getBody(), AccessToken.class);
-		 */
+
 		accessToken = tokenClient.getToken(requestMap);
 		log.info("Access token {}", accessToken.getAccess_token());
 		return accessToken.getAccess_token();

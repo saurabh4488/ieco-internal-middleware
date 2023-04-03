@@ -57,14 +57,11 @@ public class KbankSRCreationService {
 			log.info("CustomerDetailsResponse from PwC {}",custDetailsRes);
 			if (custDetailsRes.getStatus().equalsIgnoreCase("200 OK")) {
 				kbankSRCreationRequest.setCrn(custDetailsRes.getAttrs().getUserDetails().getBankCrn());
-				//kbankSRCreationRequest.setCrn("");
 				ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 				 
 				
 				 String	kbankSRCreationencResponse = gatewayClient.kbankSRCreation(AESCBCPKCS5Encryption.encrypt(ow.writeValueAsString(kbankSRCreationRequest), siebelClientSecret),"Bearer "+getAccessToken());
-			//System.out.println("KbankSRCreationencResponse "+KbankSRCreationencResponse);
 				ObjectMapper mapper = new ObjectMapper();
-				//System.out.println(ow.writeValueAsString(AESCBCPKCS5Encryption.decrypt(ow.writeValueAsString(KbankSRCreationencResponse.trim()), siebelClientSecret)));
 				String decRes= AESCBCPKCS5Encryption.decrypt(kbankSRCreationencResponse.trim(), siebelClientSecret);
 				KbankSRCreationResponse kbankSRCreationResponse = mapper.readValue(decRes, KbankSRCreationResponse.class);
 				log.info("KbankSRCreationResponse from kbank {}",kbankSRCreationResponse);
@@ -86,7 +83,6 @@ public class KbankSRCreationService {
 				kbankSRCreationResponse.setStatus("Failure");
 				return kbankSRCreationResponse;
 			}
-			//return  gatewayClient.kbankSRCreation(kbankSRCreationRequest);
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -110,8 +106,6 @@ public class KbankSRCreationService {
 		KbankSRCreationResponse.setStatus("Failure");
 		KbankSRCreationResponse.setReturnMessage("Technical Failure");
 		return KbankSRCreationResponse;
-		
-		//return  gatewayClient.kbankSRCreation(kbankSRCreationRequest);
 	}
 	
 	String getAccessToken() {

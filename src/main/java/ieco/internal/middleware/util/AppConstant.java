@@ -9,6 +9,9 @@ import java.util.regex.Pattern;
  * The type App constant.
  */
 public class AppConstant {
+	private AppConstant() {
+		throw new IllegalStateException("AppConstant Utility class");
+	}
 	/**
 	 * The constant STATUS_SUCCESS.
 	 */

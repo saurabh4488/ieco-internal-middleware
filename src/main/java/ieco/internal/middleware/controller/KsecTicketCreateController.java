@@ -15,9 +15,12 @@ public class KsecTicketCreateController {
 
 	@Autowired
 	private KsecQueryCreationService ksecQueryCreationService;
-
+	/**
+	 * SonarQube issue:
+	 * made "ksecQueryCreate" method as public
+	 */
 	@PostMapping("/ksec/tickets/queryInsert")
-	KsecTicketCreationResponse ksecQueryCreate(
+	public KsecTicketCreationResponse ksecQueryCreate(
 			@RequestBody @Valid KsecTicketCreationRequest ksecTicketCreationRequest) {
 		return ksecQueryCreationService.createTicket(ksecTicketCreationRequest);
 	}

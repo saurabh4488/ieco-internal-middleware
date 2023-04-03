@@ -50,7 +50,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 		details.add(request.getContextPath());
 log.error("Exception Stack trace "+ex.getLocalizedMessage(),ex.getCause());
 		ErrorResponse error = new ErrorResponse("INTERNAL_SERVER_ERROR", details);
-		return new ResponseEntity(error, HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
 	

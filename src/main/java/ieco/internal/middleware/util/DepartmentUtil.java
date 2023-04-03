@@ -1,7 +1,9 @@
 package ieco.internal.middleware.util;
 
 public class DepartmentUtil {
-
+	private DepartmentUtil() {
+		throw new IllegalStateException("DepartmentUtil Utility class");
+	}
 	public static String getdepartment(String category) {
 
 		String department = null;

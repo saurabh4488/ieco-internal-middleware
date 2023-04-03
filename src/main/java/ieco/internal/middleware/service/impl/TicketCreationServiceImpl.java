@@ -76,10 +76,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
         ResponseObject res = null;
         try {
 
-            /*
-             * if (isZohoEnable && middlewareRequest.getCustomerId() != "-1" && null !=
-             * middlewareRequest.getCustomerId()) {
-             */
+
             if (isZohoEnable) {
                 ZohoTicketCache ticketCache =
                         zohoUtility.checkForZohoTicketCache(middlewareRequest.getCustomerId());
@@ -110,7 +107,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             res.setMessage("Error Occurred while creating Ticket-" + e.getCause());
             res.setStatus("500 Internal Server Error");
             log.info("Ticket creation Failed for request {}", middlewareRequest);
-            log.error("Exception in ticketCreate {}", e);
+            log.error("Exception in ticketCreate {}", e.getMessage());
             return res;
         }
     }
@@ -126,8 +123,6 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             zohoTicketUpdateRequest.setStatus("Open");
         }
 
-        // DeskContactCreationCustomFields cf = new DeskContactCreationCustomFields();
-        // cf.setCf_created_date(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 
         TicketUpdateResponse tcResponse = zohoClient.ticketUpdate(zohoTicketUpdateRequest, ticketId);
         ResponseObject resObject = new ResponseObject();
@@ -148,8 +143,6 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             log.info("ticketCreate--Searching contact in zoho queryParam :{}", queryParam);
             searchContactRes =
                     zohoService.searchContact("cf_kotak_360", middlewareRequest.getCustomerId());
-            // ResponseEntity<ContactDetailsResponse> searchContactRes =
-            // zohoClient.searchContact(queryParam);
             log.info("Post login Contact searching Response by customer ID status and Id {} {}",
                     searchContactRes.getStatusCodeValue(), middlewareRequest.getCustomerId());
             log.info("ticketCreate--Contact searching  by customer ID Response {}", searchContactRes);
@@ -213,24 +206,12 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             TicketCreationRequest tcRequest = new TicketCreationRequest();
             DeskContactCreationCustomFields cf = new DeskContactCreationCustomFields();
             cf.setCf_environment(environment);
-            // String department = DepartmentUtil.getdepartment(middlewareRequest.getProductCategory());
-            /*
-             * if (department.equalsIgnoreCase("K-Sec")) { cf.setCf_replicate_to_ksec_crm("Yes");
-             * cf.setCf_sr_nature(""); cf.setCf_send_sms_1("No"); cf.setCf_calling_done("Yes");
-             * cf.setCf_remarks(middlewareRequest.getIssueDescription()); tcRequest.setPriority("High"); }
-             * if (department.equalsIgnoreCase("K-Bank")) { cf.setCf_replicate_to_siebel("No");
-             * cf.setCf_sr_nature("Request"); cf.setCf_sr_product("Retail Liabilities");
-             * cf.setCf_send_email("Yes"); cf.setCf_summary(middlewareRequest.getIssueDescription());
-             * tcRequest.setPriority("High"); } if (department.equalsIgnoreCase("KIAL")) {
-             *
-             * cf.setCf_sr_nature("FTR"); tcRequest.setPriority("Medium"); }
-             */
+
             cf.setCf_sr_nature("FTR");
             cf.setCf_crn_type("Individual");
             cf.setCf_sr_group("");
             cf.setCf_ieco_id(middlewareRequest.getCustomerId());
             cf.setCf_kotak_360_id(middlewareRequest.getCustomerId());
-            // cf.setCf_kotak_360_id(kotak360Id);
             cf.setCf_product_type(middlewareRequest.getProductCategory());
 
             cf.setCf_sr_classification("Service Request");
@@ -239,10 +220,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             cf.setCf_created_date(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 
             tcRequest.setEmail(middlewareRequest.getEmail());
-            // tcRequest.setPhone(middlewareRequest.getMobileNumber());
             tcRequest.setSubject("Ticket has been created");
-            // DepartmentUtil
-            // .getDeptID(DepartmentUtil.getdepartment(middlewareRequest.getProductCategory()))
             tcRequest.setDepartmentId(KIAL_DEPARTMENT_ID);
             tcRequest.setContactId(contactId);
             tcRequest.setDescription(middlewareRequest.getIssueDescription());
@@ -252,7 +230,6 @@ public class TicketCreationServiceImpl implements TicketCreationService {
                             : "Chatbot");
             if (middlewareRequest.isFromClevertap()) {
                 tcRequest.setSubject(middlewareRequest.getIssueDescription());
-                // tcRequest.setSubject("Aadhar Drop off Real time Call Clevertap");
                 tcRequest.setPriority("High");
                 tcRequest.setChannel("Clevertap");
                 cf.setCf_customer_journey("On-boarding");
@@ -263,13 +240,9 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             log.info("ticket creation request {}", tcRequest);
 
             TicketCreationResponse tcResponse = zohoClient.ticketCreate(tcRequest);
-            // log.info("Ticket Creation Success {}", middlewareRequest);
             log.info("Ticket ID is {}", tcResponse.getId());
 
-            // log.info("Ticket creation response {}", tcResponse.getBody());
-
-            storeInCache(tcResponse.getId(), middlewareRequest.getCustomerId(),
-                    middlewareRequest.isFromClevertap());
+            storeInCache(tcResponse.getId(), middlewareRequest.getCustomerId());
             return ResponseObject.builder().message("Success").timeStamp(System.currentTimeMillis())
                     .ticketDetails(tcResponse.getTicketNumber()).ticketId(tcResponse.getId()).status("200 OK")
                     .build();
@@ -285,15 +258,15 @@ public class TicketCreationServiceImpl implements TicketCreationService {
         }
     }
 
-    private void storeInCache(String ticketId, String customerId, boolean isCleverTap) {
+
+    private void storeInCache(String ticketId, String customerId) {
         log.info("ticket id storing in cache......");
         ZohoTicketCache ticketCache =
                 ZohoTicketCache.builder().customerId(customerId).ticketId(ticketId).build();
         zohoUtility.storeTicketDetailsInCache(ticketCache);
     }
 
-    public ResponseObject createTicketForWahtsAppChat(WhatsAppChatRequest req,
-                                                      Optional<ZohoTicketsFromWhatsApp> zohoTicketFromWhatsApp) {
+    public ResponseObject createTicketForWahtsAppChat(WhatsAppChatRequest req) {
 
         log.info("request for ticket creation from whatsapp {}", req);
 
@@ -327,24 +300,6 @@ public class TicketCreationServiceImpl implements TicketCreationService {
             TicketCreationResponse tcResponse = zohoClient.ticketCreate(tcRequest);
 
             log.info("Ticket ID is {}", tcResponse.getId());
-            /*CompletableFuture.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    if (zohoTicketFromWhatsApp.isPresent()) {
-                        ZohoTicketsFromWhatsApp zohoTicketsFromWhatsApp = zohoTicketFromWhatsApp.get();
-                        zohoTicketsFromWhatsApp.setTicketId(Long.valueOf(tcResponse.getId()));
-                        zohoTicketsFromWhatsApp.setTicketStatus(tcResponse.getStatus());
-                        zohoTicketsFromWhatsApp.setCreatedOn(new Date());
-                        zohoTicketsFromWhatsApp.setUpdatedOn(new Date());
-                        whatsAppTicketRepository.save(zohoTicketsFromWhatsApp);
-                    } else {
-                        whatsAppTicketRepository
-                                .save(ZohoTicketsFromWhatsApp.builder().customerId(req.getCustomerId())
-                                        .ticketId(Long.valueOf(tcResponse.getId())).createdOn(new Date())
-                                        .updatedOn(new Date()).ticketStatus(tcResponse.getStatus()).build());
-                    }
-                }
-            });*/
 
             return ResponseObject.builder().message("Success").timeStamp(System.currentTimeMillis())
                     .ticketDetails(tcResponse.getTicketNumber()).ticketId(tcResponse.getId()).status("200 OK")
@@ -363,7 +318,7 @@ public class TicketCreationServiceImpl implements TicketCreationService {
 
     public ResponseObject getZohoTicketDetails(WhatsAppChatRequest req) {
         log.info("WhatsAppChatRequest req {}", req);
-        ResponseObject createWhatsAppChatResponseObject = createTicketForWahtsAppChat(req, null);
+        ResponseObject createWhatsAppChatResponseObject = createTicketForWahtsAppChat(req);
         log.info("createWhatsAppChatResponseObject == {}", createWhatsAppChatResponseObject);
         return createWhatsAppChatResponseObject;
     }
@@ -399,11 +354,11 @@ public class TicketCreationServiceImpl implements TicketCreationService {
                         .status("200 OK").build();
 
             } else {
-                return createTicketForWahtsAppChat(req, zohoTicketFromWhatsApp);
+                return createTicketForWahtsAppChat(req);
             }
 
         } else {
-            return createTicketForWahtsAppChat(req, zohoTicketFromWhatsApp);
+            return createTicketForWahtsAppChat(req);
         }
 
     }

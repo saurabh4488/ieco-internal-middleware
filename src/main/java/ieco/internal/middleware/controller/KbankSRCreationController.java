@@ -13,9 +13,12 @@ public class KbankSRCreationController {
 
 	@Autowired
 	private KbankSRCreationService kbankSRCreationService;
-	
+	/**
+	 * SonarQube issue:
+	 * made "kbnkSRCreation" method as public
+	 */
 	@PostMapping("/siebel/SRcreation")
-	KbankSRCreationResponse kbnkSRCreation(@RequestBody KbankSRCreationRequest kbankSRCreationRequest){
+	public KbankSRCreationResponse kbnkSRCreation(@RequestBody KbankSRCreationRequest kbankSRCreationRequest){
 		return kbankSRCreationService.kbnkSRCreation(kbankSRCreationRequest);
 	}
 }

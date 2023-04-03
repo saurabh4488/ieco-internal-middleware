@@ -9,26 +9,8 @@ import java.util.concurrent.TimeUnit;
 @FeignClient(name = "ieco-redis-cache-server/v1/cache/redis", configuration = FeignCacheConfig.class)
 public interface RedisCacheClient {
 
-    @PostMapping("/putObjectInCacheWithKey")
-    <T> void putObjectInCache(@RequestParam("masterKey") String masterKey, @RequestBody Object object);
-
-    @PostMapping("/putObjectInCacheWithMapNameAndKey")
-    <T> void putObjectInCache(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String masterKey, @RequestBody Object object);
-
-    @PostMapping("/putObjectInCacheWithKeyWithParam")
-    <T> void putObjectInCacheWithKeyWithParam(@RequestParam("masterKey") String masterKey, @RequestParam("data") T object);
-
-    @PostMapping("/putObjectInCacheWithMapNameAndKeyWithParam")
-    <T> void putObjectInCacheWithMapNameAndKeyWithParam(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String masterKey, @RequestParam("data") T object);
-
-    @PostMapping("/putObjectInCacheWithKeyWithEvictTime")
-    <T> void putObjectInCacheWithEvictTime(@RequestParam("masterKey") String masterKey, @RequestBody Object object, @RequestParam("timeout") long timeout, @RequestParam("timeUnit") TimeUnit timeUnit);
-
     @PostMapping("/putObjectInCacheWithMapNameAndKeyWithEvictTime")
     <T> void putObjectInCacheWithEvictTime(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String masterKey, @RequestBody Object object, @RequestParam("timeout") long timeout, @RequestParam("timeUnit") TimeUnit timeUnit);
-
-    @PostMapping("/putObjectInCacheWithKeyWithParamWithEvictTime")
-    <T> void putObjectInCacheWithKeyWithParamWithEvictTime(@RequestParam("masterKey") String masterKey, @RequestParam("data") T object, @RequestParam("timeout") long timeout, @RequestParam("timeUnit") TimeUnit timeUnit);
 
     @PostMapping("/putObjectInCacheWithMapNameAndKeyWithParamWithEvictTime")
     <T> void putObjectInCacheWithMapNameAndKeyWithParamWithEvictTime(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String masterKey, @RequestParam("data") T object, @RequestParam("timeout") long timeout, @RequestParam("timeUnit") TimeUnit timeUnit);
@@ -38,17 +20,5 @@ public interface RedisCacheClient {
 
     @GetMapping("/getObjectFromCacheWithMapNameAndKey")
     Object getObjectFromCache(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String key);
-
-    @GetMapping("/readAllDataFromRedisCache")
-    Object readAllDataFromRedisCache();
-
-    @GetMapping("/readDataFromRedisCacheByName")
-    Object readDataFromRedisCacheByName(@RequestParam("mapName") String cacheName);
-
-    @DeleteMapping("/removeFromCacheWithKey")
-    void removeFromCache(@RequestParam("masterKey") String key);
-
-    @DeleteMapping("/removeFromCacheWithMapNameAndKey")
-    void removeFromCache(@RequestParam("mapName") String mapName, @RequestParam("masterKey") String key);
 
 }

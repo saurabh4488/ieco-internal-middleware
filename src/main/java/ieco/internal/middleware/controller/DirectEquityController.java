@@ -79,7 +79,7 @@ public class DirectEquityController extends AbstractResponse {
             if (appInitCacheInfo.get(DirectEquityConstants.DE_APPINIT_SESSION_ID) == null || appInitCacheInfo.get(DirectEquityConstants.DE_APPINIT_SESSION_ID).isEmpty())
                 appInitCacheInfo.put(DirectEquityConstants.DE_APPINIT_SESSION_ID, sessionId);
 
-            if (null != appInitCacheInfo && appInitCacheInfo.size() > 0) {
+            if (appInitCacheInfo.size() > 0) {
                 log.info("Inside if appInitCacheInfo {}", appInitCacheInfo);
                 AutoLoginDataRequestVO autoLoginDataRequestVO = AutoLoginDataRequestVO.builder()
                         .userId(request.getUserId())
@@ -95,9 +95,9 @@ public class DirectEquityController extends AbstractResponse {
                         .build();
 
                 return directEquityService.getIPOAutoLogin(DirectEquityUtil.getFormedURL(
-                        appInitCacheInfo.get(DirectEquityConstants.DE_APPINIT_REQUEST_MAP_SERVICE_HOST),
-                        appInitCacheInfo.get(DirectEquityConstants.DE_APPINIT_REQUEST_MAP_SERVICE_PORT),
-                        autologinapilink),
+                                appInitCacheInfo.get(DirectEquityConstants.DE_APPINIT_REQUEST_MAP_SERVICE_HOST),
+                                appInitCacheInfo.get(DirectEquityConstants.DE_APPINIT_REQUEST_MAP_SERVICE_PORT),
+                                autologinapilink),
                         directEquityUtil.getEncryptedMessageForRequest(autoLoginRequestVO, appInitCacheInfo), loggedInCustomerId, appInitCacheInfo.get(DirectEquityConstants.DE_APPINIT_SESSION_ID));
             } else {
                 log.info("Inside else DE_KSEC_APPINIT_FETCH_ERROR");

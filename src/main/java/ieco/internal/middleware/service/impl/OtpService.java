@@ -93,7 +93,6 @@ public class OtpService {
             responseObject.setMessage(CustomerConstants.UNAUTHORIZED);
             return new ResponseEntity<>(responseObject, HttpStatus.UNAUTHORIZED);
         }
-//		ResponseEntity<ResponseObject> resEntity = iecoCustomerClient.initiateTransaction(req);
         log.info("InitiateTransactionRespone received from PwC {}", resEntity.getBody());
         return resEntity;
 
@@ -111,7 +110,6 @@ public class OtpService {
             responseObject.setMessage(CustomerConstants.UNAUTHORIZED);
             return new ResponseEntity<>(responseObject, HttpStatus.UNAUTHORIZED);
         }
-//		ResponseEntity<ResponseObject> resEntity = otpClient.otpGenerate(req);
         log.info("otpGenerate Respone received from PwC {}", resEntity.getBody());
         return resEntity;
     }
@@ -165,19 +163,8 @@ public class OtpService {
 
             TicketCreationRequest tcRequest = new TicketCreationRequest();
             DeskContactCreationCustomFields cf = new DeskContactCreationCustomFields();
-            // String department = DepartmentUtil.getdepartment(middlewareRequest.getProductCategory());
-
 
             cf.setCf_environment(environment);
-            /*
-             * if (department.equalsIgnoreCase("K-Sec")) { cf.setCf_replicate_to_ksec_crm("Yes");
-             * cf.setCf_sr_nature(""); cf.setCf_send_sms_1("No"); cf.setCf_calling_done("Yes");
-             * cf.setCf_remarks(middlewareRequest.getIssueDescription()); tcRequest.setPriority("High"); }
-             * if (department.equalsIgnoreCase("K-Bank")) { cf.setCf_replicate_to_siebel("No");
-             * cf.setCf_sr_nature("Request"); cf.setCf_sr_product("Retail Liabilities");
-             * cf.setCf_send_email("Yes"); cf.setCf_summary(middlewareRequest.getIssueDescription());
-             * tcRequest.setPriority("High"); }
-             */
 
 
             cf.setCf_sr_nature("FTR");
@@ -256,20 +243,7 @@ public class OtpService {
                 String contactId = searchContactRes.getContactResponse().get(0).getId();
                 String iecoId = Long.toString(custRes.getAttrs().getUserDetails().getCustomerId());
                 return (T) createTicket(middlewareRequest, contactId, iecoId);
-            } /*
-             * else { contactCreationRes = contactCreation( formContactCreationRequest(custRes,
-             * middlewareRequest, "contact"));
-             *
-             * String iecoId = Long.toString(custRes.getAttrs().getUserDetails().getCustomerId());
-             *
-             * if (restUtility.checkStatus(contactCreationRes)) { String contactId = new
-             * ObjectMapper().readTree(contactCreationRes.getBody()).get("id").asText(); return (T)
-             * createTicket(middlewareRequest, contactId, iecoId);
-             *
-             * }
-             *
-             * }
-             */
+            }
         } // customer details if
 
         else {

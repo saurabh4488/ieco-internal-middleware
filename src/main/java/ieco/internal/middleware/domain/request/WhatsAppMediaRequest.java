@@ -13,12 +13,12 @@ import java.util.List;
 @Builder
 @ToString
 public class WhatsAppMediaRequest {
-
-
-
+  /**SonarQube Issue:
+   *WhatsAppMediaRequest.Profile & WhatsAppMediaRequest.KeyValues
+   */
 
   @JsonProperty("profiles")
-  private List<Profile> profiles;
+  private List<WhatsAppMediaRequest.Profile> profiles;
 
   @Getter
   @Setter
@@ -28,7 +28,7 @@ public class WhatsAppMediaRequest {
   public static class Profile {
 
     @JsonProperty("key_values")
-    private KeyValues keyValues;
+    private WhatsAppMediaRequest.KeyValues keyValues;
     @JsonProperty("email")
     private String email;
     @JsonProperty("identity")

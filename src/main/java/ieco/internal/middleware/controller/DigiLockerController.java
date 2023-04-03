@@ -15,15 +15,15 @@ public class DigiLockerController {
 
 	@Autowired
 	private DigiLockerService digiLockerService;
-	
+//	SonarQube issue: added "public" in method "getAuthorizationEndpoint"
 	@GetMapping("/retrieveAuthorizationUrl")
-	ResponseEntity<ResponseObject> getAuthorizationEndpoint(@RequestParam("clientId") String clientId,@RequestParam("redirecturl") String redirectURL) {
+	public ResponseEntity<ResponseObject> getAuthorizationEndpoint(@RequestParam("clientId") String clientId,@RequestParam("redirecturl") String redirectURL) {
 		
 		return new ResponseEntity<>(digiLockerService.retrieveAuthorizationUrl(clientId,redirectURL), HttpStatus.OK);
 	}
-	
+	//	SonarQube issue: added "public" in method "getCustomerData"
 	@PostMapping("/getCustomerData")
-	ResponseObject getCustomerData(@RequestBody @Valid DgCustomerReqVO req) {
+	public ResponseObject getCustomerData(@RequestBody @Valid DgCustomerReqVO req) {
 		return digiLockerService.getCustomerData(req);
 	}
 }

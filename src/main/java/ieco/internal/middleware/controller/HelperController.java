@@ -21,8 +21,13 @@ public class HelperController {
     @Autowired
     private HelperService helperService;
 
+    /**
+     * SonarQube issue:
+     * made "getCustomerType" method as public
+     */
+
     @PostMapping("/getCustomerType")
-    ResponseEntity<HashMap<String, String>> getCustomerType(@RequestBody @Valid CustomerTypeRequest customerTypeRequest) {
+    public ResponseEntity<HashMap<String, String>> getCustomerType(@RequestBody @Valid CustomerTypeRequest customerTypeRequest) {
         log.info("Inside get customerType controller");
         return helperService.getCustomerType(customerTypeRequest);
     }

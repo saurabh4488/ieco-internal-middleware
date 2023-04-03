@@ -71,9 +71,10 @@ public class Click2CallLoginService {
 		loginRequest.setClient_IP("");
 		loginRequest.setChannel_ID("");
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-		//System.out.println(ow.writeValueAsString(loginRequest));
-		log.info("C2C insert Request Recevied from zoho: {}.",ow.writeValueAsString(insertdetails));
-		log.info("C2C login Request: {}.",ow.writeValueAsString(loginRequest));
+		String writeValueAsString = ow.writeValueAsString(insertdetails);
+		log.info("C2C insert Request Recevied from zoho: {}.", writeValueAsString);
+		String loginRequestLog = ow.writeValueAsString(loginRequest);
+		log.info("C2C login Request: {}.", loginRequestLog);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		ResponseEntity<String> loginResponse = restUtility.post(c2cLoginURL, null,
@@ -83,7 +84,8 @@ public class Click2CallLoginService {
 		if (restUtility.checkStatus(loginResponse) ) {
 			log.info(loginResponse.getBody());
 			ObjectMapper mapper = new ObjectMapper();
-			System.out.println(ow.writeValueAsString(loginResponse.getBody()));
+			String writeValueAsStringLog = ow.writeValueAsString(loginResponse.getBody());
+			log.info("writevalueAsString value- {}", writeValueAsStringLog);
 			C2CLoginResponse C2CLoginRes = mapper.readValue(loginResponse.getBody(), C2CLoginResponse.class);
 			
 			if( C2CLoginRes.getError_Code() != null && !C2CLoginRes.getError_Code().isEmpty() &&C2CLoginRes.getError_Code().equals("200") ) {
@@ -101,8 +103,6 @@ public class Click2CallLoginService {
 		return null;
 		
 	}
-
-	@SuppressWarnings("unchecked")
 	public <T> T c2cInsertDetails(String loginResponse, C2CInsertDetails insertdetails, String custType)
 			throws JsonProcessingException, JsonMappingException,  UnsupportedEncodingException,
 			GeneralSecurityException {
@@ -110,7 +110,6 @@ public class Click2CallLoginService {
 		if (custType != null && !custType.isEmpty() && custType.equalsIgnoreCase("Contact") || !insertdetails.getCustomer_ID().equals("1234")  ) {
 			CustomerDetailsResponse custDetailsRes = otpService.getCustomerdetails(Integer.parseInt(insertdetails.getCustomer_ID()), null);
 			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-			//System.out.println(ow.writeValueAsString(custDetailsRes));
 			log.info("C2C Customer details: {}.",ow.writeValueAsString(custDetailsRes));
 			if (custDetailsRes.getStatus().equalsIgnoreCase("200 OK")) {
 				
@@ -126,7 +125,6 @@ public class Click2CallLoginService {
 		insertdetails.setCrm_Ticket_ID(clientCode);
 		}
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-		//System.out.println(ow.writeValueAsString(insertdetails));
 		log.info("C2C insert Request: {}.",ow.writeValueAsString(insertdetails));
 		Map<String,String> mapHeaders = new HashMap<String, String>();
 		mapHeaders.put("Authorization", "Bearer " + new ObjectMapper().readTree(loginResponse).get("Token").asText());

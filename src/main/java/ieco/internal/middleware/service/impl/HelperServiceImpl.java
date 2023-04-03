@@ -26,9 +26,10 @@ public class HelperServiceImpl extends AbstractResponse implements HelperService
         try {
             ResponseEntity<HashMap<String, String>> getCustomerType = utilityServiceClient.getCustomerType(customerTypeRequest);
             log.info("getCustomer Type result is {}",getCustomerType);
-            if(getCustomerType.getBody()!=null) {
-                res.put("customerId",getCustomerType.getBody().get("customerId"));
-                res.put("customerType",getCustomerType.getBody().get("customerType"));
+            HashMap<String, String> getCustomerType1 = getCustomerType.getBody();
+            if(getCustomerType1!=null) {
+                res.put("customerId", getCustomerType1.get("customerId"));
+                res.put("customerType", getCustomerType1.get("customerType"));
                 return new ResponseEntity<>(res, HttpStatus.OK);
             }
         }

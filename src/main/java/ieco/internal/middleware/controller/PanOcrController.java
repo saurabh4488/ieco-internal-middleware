@@ -66,7 +66,7 @@ public class PanOcrController {
 
     @PostMapping("/fetchDMSDocs")
     @ResponseBody
-    private HashMap<String, String> fetchDMSDocs(@RequestParam String customerId, @RequestParam String docTypeId) {
+    public HashMap<String, String> fetchDMSDocs(@RequestParam String customerId, @RequestParam String docTypeId) {
         HashMap<String, String> result = new HashMap<>();
         try {
             log.debug("fetchDMSDocs started for extraction");
@@ -99,7 +99,7 @@ public class PanOcrController {
 
     @PostMapping("/fetchPanDtls")
     @ResponseBody
-    private String sentCvlZipFileForExtraction(@RequestParam String iecoid,
+    public String sentCvlZipFileForExtraction(@RequestParam String iecoid,
                                                @RequestHeader(value = "panDownload", required = false) String panDownload,
                                                @RequestParam(value = "dmsDocId", required = false) String dmsDocId,
                                                @RequestParam(value = "fileName", required = false) String fileName,
@@ -112,7 +112,6 @@ public class PanOcrController {
                 log.debug("Sending Cvl zip file for image extraction");
                 MultipartFile zipFile = null;
                 log.info("downloading CVL zip from dms:{}", iecoid);
-                String pizzaEnumValue = "rEAdY";
                 DmsDocumentTypeEnum dmsDocumentTypeEnum
                         = DmsDocumentTypeEnum.valueOf(dmsDocumentType);
 
@@ -145,10 +144,6 @@ public class PanOcrController {
                     log.info("Folder is not created at the path....creating folder at path for {}", customerId);
                     new File(realPathtoUploads).mkdir();
                 }
-                String orgName = multipartFile.getOriginalFilename();
-                String filePath = realPathtoUploads + orgName;
-                File dest = new File(filePath);
-                //multipartFile.transferTo(dest);
                 dmsIntegrationClient.uploadDocuments("", multipartFile, dmsDocumentType, Integer.parseInt(customerId));
             }
         } catch (Exception e) {

@@ -109,18 +109,12 @@ public class UpdateWaitingList {
 			}
 
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		} finally {
 			try {
-				/**
-				* Fortify issue started
-				 */
 				if(writer != null) {
 					writer.close();
 				}
-				/**
-				 * Fortify issue ended
-				 */
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -222,23 +216,12 @@ String ip = InetAddress.getLoopbackAddress().getHostAddress();
 			log.info("Successfully uploaded [FILE]:{} uploaded File is:{}", customMultipartFile.getOriginalFilename(),
 					fileToWrite);
 
-			/*
-			 * if(!customerCheckList.isEmpty()) { try {
-			 * log.info("Start processing welcome letter check update for customers");
-			 * CompletableFuture.runAsync(() ->
-			 * processCustomerChecksforWelcomeLetter(customerCheckList) );
-			 * log.info("End processing welcome letter check update for customers"); } catch
-			 * (Exception ex) { log.error(
-			 * "Error occurred while processing customercheck list for welcome letter for user [ERROR] {}"
-			 * , ex); } }
-			 */
-
 		} catch (JSchException | SftpException e) {
 			log.error("Error in connecting to server {}", e);
 		} catch (IOException e) {
-			log.error("Error in uploading file {}", e);
+			log.error("Error in uploading file {}", e.getMessage());
 		} catch (Exception e) {
-			log.error("Error in uploading sa welcome letter file to SFTP Server [ERROR] {}", e);
+			log.error("Error in uploading sa welcome letter file to SFTP Server [ERROR] {}", e.getMessage());
 		}
 		/**
 		* Fortify issue started added finally block

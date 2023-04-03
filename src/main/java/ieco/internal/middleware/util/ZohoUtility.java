@@ -70,23 +70,21 @@ public class ZohoUtility {
 // Print the date difference in
 // years, in days, in hours, in
 // minutes, and in seconds
-            System.out.print("Difference" + " between two dates is: ");
-
+            log.info("Difference between two dates is: ");
 // Print result
-            System.out.println(difference_In_Years + " years, " + difference_In_Days + " days, " + difference_In_Hours
-                    + " hours, " + difference_In_Minutes + " minutes, " + difference_In_Seconds + " seconds");
+            System.out.println(difference_In_Years + " years, " + difference_In_Days + " days, " + difference_In_Hours + " hours, " + difference_In_Minutes + " minutes, " + difference_In_Seconds + " seconds"); //NOSONAR
 //compare the two user input
             int result = Long.compare(difference_In_Hours, 1);
 
             // interpret the result
             if (result == 0) {
-                System.out.println("They are equal");
+                log.info("They are equal");
                 isExpired = true;
             } else if (result > 0) {
-                System.out.println("First Value is greater than the second");
+                log.info("First Value is greater than the second");
                 isExpired = true;
             } else {
-                System.out.println("First Value is less than the second");
+                log.info("First Value is less than the second");
                 isExpired = false;
             }
 
@@ -141,7 +139,6 @@ public class ZohoUtility {
     }
 
     public void storeTicketDetailsInCache(ZohoTicketCache ticketCache) {
-        //LocalTime ticketcreationDate = LocalTime.now();
 
         try {
             LocalDate localDate = LocalDate.now();

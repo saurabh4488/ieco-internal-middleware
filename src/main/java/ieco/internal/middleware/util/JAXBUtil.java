@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JAXBUtil {
-	
+	private JAXBUtil() {
+		throw new IllegalStateException("JAXBUtil Utility class");
+	}
 	private static Map<String, JAXBContext> map = new HashMap<>();
 
 	/**
@@ -36,12 +38,7 @@ public class JAXBUtil {
 			map.putIfAbsent(clazz.getName(), JAXBContext.newInstance(clazz));
 			JAXBContext jc = map.getOrDefault(clazz.getName(), JAXBContext.newInstance(clazz));
 			Unmarshaller unmarshaller = jc.createUnmarshaller();
-			/**
-			 * Fortify issue started added line 48-57, commented line 46 47
-			 */
 
-			//T obj = clazz.cast(unmarshaller.unmarshal(new ByteArrayInputStream(xml.getBytes())));
-			//return obj;
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -52,9 +49,6 @@ public class JAXBUtil {
 			e.printStackTrace();
 		}
 		return obj;
-		/**
-		 * Fortify issue ended
-		 */
 	}
 	/**
 	 * This method typically used to avoid namespace issue while unmarshall
@@ -72,14 +66,8 @@ public class JAXBUtil {
         JAXBContext jc =  map.getOrDefault(clazz.getName() , JAXBContext.newInstance(clazz));
         XMLInputFactory xif = XMLInputFactory.newFactory();
         xif.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
-		/**
-		 * 	Fortify issue started added line 81 82
- 		*/
 		xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
 		xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-		/**
-		 * 	Fortify issue ended
-		 */
 		XMLStreamReader xsr = xif.createXMLStreamReader(new ByteArrayInputStream(xml.getBytes()));
 		Unmarshaller unmarshaller = jc.createUnmarshaller();
         
@@ -115,7 +103,6 @@ public static <T> String marshallwithNameSpace(Object xml, Class<T> clazz,String
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, xmlNs);
-      //  marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new SANamespaceMapper());
         marshaller.marshal(xml , sw);
         String xmlContent = sw.toString();
         return xmlContent;
@@ -135,14 +122,7 @@ public static <T> String marshallwithNameSpace(Object xml, Class<T> clazz,String
         JAXBContext jc =  map.getOrDefault(clazz.getName() , JAXBContext.newInstance(clazz));
         Unmarshaller unmarshaller = jc.createUnmarshaller();
         T obj=null;
-		/**
-		 * Fortify issue started, reader not required so commented line 145,147,157- 159 and hence finally block
-		 * added line 149-156
-		 */
-
-       // Reader reader = new InputStreamReader(new ByteArrayInputStream(xml.getBytes()), "UTF-8");
 		try {
-           //obj = clazz.cast(unmarshaller.unmarshal(reader));
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 			DocumentBuilder db = dbf.newDocumentBuilder();
@@ -150,15 +130,8 @@ public static <T> String marshallwithNameSpace(Object xml, Class<T> clazz,String
 			obj = clazz.cast(unmarshaller.unmarshal(document));
 			return obj;
 		} catch (ParserConfigurationException | SAXException e) {
+			e.printStackTrace();
 		}
-		/**
-		 *   finally  {
-		 *   reader.close();
-        }*/
-
-		/**
-		 * 	Fortify issue ended
-		* */
         return obj;
     }
 

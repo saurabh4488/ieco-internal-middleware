@@ -82,7 +82,7 @@ public class SocialMediaService extends AbstractResponse {
         } catch (Exception e) {
             e.printStackTrace();
             log.info("Contact creation Failed for saveSocialMediaUser {}", request);
-            log.error("Exception in saveSocialMediaUser {}", e);
+            log.error("Exception in saveSocialMediaUser {}", e.getMessage());
             responseObject = responseError("Error While save SocialMediaUser Details",
             		ResponseCodeEnum.TECHNICAL_FAILURE);
         }
@@ -124,7 +124,7 @@ public class SocialMediaService extends AbstractResponse {
             data.setLeadVerified("Y");
             socialMediaUsersRepository.save(data);
         } catch (Exception e) {
-        	log.error("error while setting lead verified flag {}",e);
+        	log.error("error while setting lead verified flag {}",e.getMessage());
         }
         return responseSuccess("Details Updated successfully",
                 ResponseCodeEnum.DETAILS_UPADTED_SUCCESSFULLY);
@@ -137,7 +137,7 @@ public class SocialMediaService extends AbstractResponse {
             if (validateToken(token)) {
                 HttpHeaders headers = null;
                 List<String> mapKeyList = new ArrayList<String>();
-                List<Object> attrList = new ArrayList<Object>();
+                List<Object> attrList;
                 List<SocialMediaContent> socialMediaContentList = socialMediaContentRepository.findByIsActive("Y");
                 List<SocialMediaContent> allData = new ArrayList<>();
                 for (SocialMediaContent socialMediaContent:socialMediaContentList) {
@@ -212,10 +212,8 @@ public class SocialMediaService extends AbstractResponse {
     
     boolean validateToken(String token) {
 		Optional<AdminDetails> adminDetails = adminDetailsRepository.findByToken(token);
-		if (adminDetails.isPresent()) {
-			if (adminDetails.get().getToken().equals(token)) {
+		if (adminDetails.isPresent() && adminDetails.get().getToken().equals(token)) {
 				return true;
-			}
 		}
 		return false;
 	}

@@ -115,7 +115,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
     @Override
     public ResponseObject createWaitingListNumber(IncomingEmail email) {
 
-        // log.info("checking local emailID availability {}", email);
         try {
             WaitingListDetailsEntity customerDetailsEntity = waitingListRepository
                     .findByEmailIdIgnoreCase(email.getEmail());
@@ -239,21 +238,17 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
         response.setMedium(savedDetails.getMedium());
         response.setExtras(savedDetails.getExtras());
 
-        CompletableFuture.runAsync(new Runnable() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                log.info("Sending mail started for the user {}", request.getEmail());
+                sendConfirmationMail(waitingListNumber, refCode, request.getEmail());
 
-            @Override
-            public void run() {
-                try {
-                    log.info("Sending mail started for the user {}", request.getEmail());
-                    sendConfirmationMail(waitingListNumber, refCode, request.getEmail());
-
-                } catch (Exception e) {
-                    log.error("mail sending is failed for the user {}", e);
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
+            } catch (Exception e) {
+                log.error("mail sending is failed for the user {}", e.getMessage());
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
+
         });
 
         log.info("Create waiting list number {}", response);
@@ -271,7 +266,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             }
             return responseError("Reference code Verification failed", ResponseCodeEnum.REFERENCE_CODE_VERIFIED_FAILED);
         } catch (Exception e) {
-            log.error("Error occured in verifyRefCode {}", e.getMessage(), e.getStackTrace());
             throw new IecoRuntimeException(String.format("%s [ERROR] with [checkEmail]: %s", e.getMessage(), refCode),
                     e);
         }
@@ -291,7 +285,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
                         return AbstractResponse.responseError("Mobile Number is invalid",
                                 ResponseCodeEnum.INVALID_MOBILE);
                     }
-                    // System.out.println(customerDetailsEntity.getOffset());
                     customerDetailsEntity.setFullName(req.getFullName());
                     customerDetailsEntity.setLinkedinURL(req.getLinkedinURL());
                     customerDetailsEntity.setMobileNumber(req.getMobileNumber());
@@ -302,22 +295,18 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
                     customerDetailsEntity.setUpdatedTime(new Date());
                     waitingListRepository.save(customerDetailsEntity);
 
-                    CompletableFuture.runAsync(new Runnable() {
+                    CompletableFuture.runAsync(() -> {
+                        String url = appURL + "?refcode=" + customerDetailsEntity.getReferenceCode();
+                        Integer currNum = customerDetailsEntity.getWaitingListNumber()
+                                - customerDetailsEntity.getOffset();
+                        String smsText = "Hey there, you have signed up for early access on Kotak Cherry and are currently on waitlist number "
+                                + currNum
+                                + ". Quick tip: To beat the queue – ask your fam to sign up using this link " + url;
+                        SMSRequestVO smsreq = SMSRequestVO.builder().priority("1").srcAppCd(sourceAppId)
+                                .text(smsText).to(req.getMobileNumber())
+                                .msgReqID(String.valueOf(System.currentTimeMillis())).contentTemplateId("1107161236043209034").principalId("1201160455792349833").build();
+                        sendSms(smsreq);
 
-                        @Override
-                        public void run() {
-                            String url = appURL + "?refcode=" + customerDetailsEntity.getReferenceCode();
-                            Integer currNum = customerDetailsEntity.getWaitingListNumber()
-                                    - customerDetailsEntity.getOffset();
-                            String smsText = "Hey there, you have signed up for early access on Kotak Cherry and are currently on waitlist number "
-                                    + currNum
-                                    + ". Quick tip: To beat the queue – ask your fam to sign up using this link " + url;
-                            SMSRequestVO smsreq = SMSRequestVO.builder().priority("1").srcAppCd(sourceAppId)
-                                    .text(smsText).to(req.getMobileNumber())
-                                    .msgReqID(String.valueOf(System.currentTimeMillis())).contentTemplateId("1107161236043209034").principalId("1201160455792349833").build();
-                            sendSms(smsreq);
-
-                        }
                     });
 
                 } else {
@@ -337,45 +326,37 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
                         waitingDetailsEntity.setUpdatedTime(new Date());
                         waitingListRepository.save(waitingDetailsEntity);
 
-                        CompletableFuture.runAsync(new Runnable() {
+                        CompletableFuture.runAsync(() -> {
 
-                            @Override
-                            public void run() {
+                            Integer currNum = waitingDetailsEntity.getWaitingListNumber()
+                                    - waitingDetailsEntity.getOffset();
+                            triggerCrossedMilestoneSMS(waitingDetailsEntity, currNum);
 
-                                Integer currNum = waitingDetailsEntity.getWaitingListNumber()
-                                        - waitingDetailsEntity.getOffset();
-                                triggerCrossedMilestoneSMS(waitingDetailsEntity, currNum);
-
-                                if (waitingDetailsEntity.getWaitingListNumber() > 10
-                                        && (currNum > 0 && currNum <= 10)) {
-                                    String url = appURL + "temp3?email=" + waitingDetailsEntity.getEmailId();
-                                    String smsText = "Take a bow! You are at no. " + currNum + " and are about to enter the world of Kotak Cherry any time now. Tap " + url + " to read more";
-                                    SMSRequestVO smsreq = SMSRequestVO.builder().priority("1").srcAppCd(sourceAppId)
-                                            .text(smsText).to(waitingDetailsEntity.getMobileNumber())
-                                            .msgReqID(String.valueOf(System.currentTimeMillis())).contentTemplateId("1107161236090614968").principalId("1201160455792349833").build();
-                                    sendSms(smsreq);
-
-                                }
-                                if (currNum > 1) {
-
-                                    String url = appURL + "temp4?email=" + waitingDetailsEntity.getEmailId();
-
-									/*String smsText = "Woah!! You just jumped up by " + waitingDetailsEntity.getOffset()
-											+ " steps and are currently at waitlist number " + currNum
-											+ ". Wanna go higher? Tap " + url + " - Kotak Cherry";*/
-
-                                    String smsText = "You make quite an impression on your people. You just climbed up by " + waitingDetailsEntity.getOffset() + " steps and currently are at waitlist "
-                                            + "no. " + currNum + ". Wanna go higher? Ask your buddies to sign up using this " + url + " - Kotak Cherry";
-                                    SMSRequestVO smsreq = SMSRequestVO.builder().priority("1").srcAppCd(sourceAppId)
-                                            .text(smsText).to(waitingDetailsEntity.getMobileNumber())
-                                            .msgReqID(String.valueOf(System.currentTimeMillis())).contentTemplateId("1107161235835634648").principalId("1201160455792349833").build();
-                                    sendSms(smsreq);
-                                } else {
-                                    waitingDetailsEntity.setWaitingListNumber(1);
-                                    waitingListRepository.save(waitingDetailsEntity);
-                                }
+                            if (waitingDetailsEntity.getWaitingListNumber() > 10
+                                    && (currNum > 0 && currNum <= 10)) {
+                                String url = appURL + "temp3?email=" + waitingDetailsEntity.getEmailId();
+                                String smsText = "Take a bow! You are at no. " + currNum + " and are about to enter the world of Kotak Cherry any time now. Tap " + url + " to read more";
+                                SMSRequestVO smsreq = SMSRequestVO.builder().priority("1").srcAppCd(sourceAppId)
+                                        .text(smsText).to(waitingDetailsEntity.getMobileNumber())
+                                        .msgReqID(String.valueOf(System.currentTimeMillis())).contentTemplateId("1107161236090614968").principalId("1201160455792349833").build();
+                                sendSms(smsreq);
 
                             }
+                            if (currNum > 1) {
+
+                                String url = appURL + "temp4?email=" + waitingDetailsEntity.getEmailId();
+
+                                String smsText = "You make quite an impression on your people. You just climbed up by " + waitingDetailsEntity.getOffset() + " steps and currently are at waitlist "
+                                        + "no. " + currNum + ". Wanna go higher? Ask your buddies to sign up using this " + url + " - Kotak Cherry";
+                                SMSRequestVO smsreq = SMSRequestVO.builder().priority("1").srcAppCd(sourceAppId)
+                                        .text(smsText).to(waitingDetailsEntity.getMobileNumber())
+                                        .msgReqID(String.valueOf(System.currentTimeMillis())).contentTemplateId("1107161235835634648").principalId("1201160455792349833").build();
+                                sendSms(smsreq);
+                            } else {
+                                waitingDetailsEntity.setWaitingListNumber(1);
+                                waitingListRepository.save(waitingDetailsEntity);
+                            }
+
                         });
                     }
                 }
@@ -460,7 +441,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             }
             return responseError("Email not exist!", ResponseCodeEnum.EMAIL_NOT_EXISTS);
         } catch (Exception e) {
-            log.error("Error occured in checkAccess {}", email, e.getMessage(), e.getStackTrace());
             throw new IecoRuntimeException(String.format("%s [ERROR] with [checkEmail]: %s", e.getMessage(), email), e);
         }
     }
@@ -470,7 +450,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
 
         if (token != null && !token.isEmpty()) {
             List<String> mapKeyList = new ArrayList<String>();
-            List<Object> attrList = new ArrayList<Object>();
+            List<Object> attrList;
             HttpHeaders headers = null;
             if (validateToken(request.getEmailId(), token)) {
 
@@ -506,7 +486,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
                 if (validateToken(request.getEmail(), token)) {
                     List<WaitingListDetailsEntity> detailEntity = waitingListRepository
                             .findByEmailIdContainingIgnoreCase(chars);
-                    // System.out.println(detailEntity.size());
                     if (!CollectionUtils.isEmpty(detailEntity)) {
                         mapKeyList.addAll(Arrays.asList("searchRecords"));
                         attrList = Arrays.asList(detailEntity);
@@ -564,34 +543,27 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
                     waitingListRepository.updateAccessFields(request.getEmailList(), 0, "Y", new Date(),
                             request.getUserId());
 
-                    CompletableFuture.runAsync(new Runnable() {
+                    CompletableFuture.runAsync(() -> {
 
-                        @Override
-                        public void run() {
-
-							/*String smsText = "Yipeee! You’re the newest member of the Kotak Cherry gang! 🍒 Let’s start the journey of making your dreams come true. Tap"
-									+ cherryURL + " to start exploring Cherry.";*/
-
-                            String smsText = "Yipeee! You are the newest member of the Kotak Cherry gang! Let us make your dreams come true. Tap " + cherryURL + " to start exploring Cherry.";
-                            if (request.getEmailList().size() > 1) {
-                                List<WaitingListDetailsEntity> listEntity = waitingListRepository
-                                        .findAllByEmailIdIn(request.getEmailList());
-                                for (WaitingListDetailsEntity waitingDetailsEntity : listEntity) {
-                                    SMSRequestVO smsreq = SMSRequestVO.builder().priority("1").srcAppCd(sourceAppId)
-                                            .text(smsText).to(waitingDetailsEntity.getMobileNumber())
-                                            .msgReqID(String.valueOf(System.currentTimeMillis())).contentTemplateId("1107161235764020824").principalId("1201160455792349833").build();
-                                    sendSms(smsreq);
-                                }
-
-                            } else if (request.getEmailList().size() == 1) {
-                                WaitingListDetailsEntity waitingDetailsEntity = waitingListRepository
-                                        .findByEmailIdIgnoreCase(request.getEmailList().get(0));
+                        String smsText = "Yipeee! You are the newest member of the Kotak Cherry gang! Let us make your dreams come true. Tap " + cherryURL + " to start exploring Cherry.";
+                        if (request.getEmailList().size() > 1) {
+                            List<WaitingListDetailsEntity> listEntity = waitingListRepository
+                                    .findAllByEmailIdIn(request.getEmailList());
+                            for (WaitingListDetailsEntity waitingDetailsEntity : listEntity) {
                                 SMSRequestVO smsreq = SMSRequestVO.builder().priority("1").srcAppCd(sourceAppId)
                                         .text(smsText).to(waitingDetailsEntity.getMobileNumber())
                                         .msgReqID(String.valueOf(System.currentTimeMillis())).contentTemplateId("1107161235764020824").principalId("1201160455792349833").build();
                                 sendSms(smsreq);
-
                             }
+
+                        } else if (request.getEmailList().size() == 1) {
+                            WaitingListDetailsEntity waitingDetailsEntity = waitingListRepository
+                                    .findByEmailIdIgnoreCase(request.getEmailList().get(0));
+                            SMSRequestVO smsreq = SMSRequestVO.builder().priority("1").srcAppCd(sourceAppId)
+                                    .text(smsText).to(waitingDetailsEntity.getMobileNumber())
+                                    .msgReqID(String.valueOf(System.currentTimeMillis())).contentTemplateId("1107161235764020824").principalId("1201160455792349833").build();
+                            sendSms(smsreq);
+
                         }
                     });
 
@@ -604,7 +576,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError("Authentication is required to access this resource!",
                     ResponseCodeEnum.EMAIL_NOT_EXISTS);
         } catch (Exception e) {
-            log.error("error while providing access {}", e.getCause(), e.getMessage());
             throw new IecoRuntimeException(
                     String.format("%s [ERROR] with [checkEmail]: %s", e.getMessage(), "provide access"), e);
         }
@@ -624,7 +595,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError("Authentication is required to access this resource!",
                     ResponseCodeEnum.EMAIL_NOT_EXISTS);
         } catch (Exception e) {
-            log.error("error while deleting user {}", e.getCause(), e.getMessage());
             throw new IecoRuntimeException(
                     String.format("%s [ERROR] with [checkEmail]: %s", e.getMessage(), "deleting user"), e);
         }
@@ -646,7 +616,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError("Authentication is required to access this resource!",
                     ResponseCodeEnum.EMAIL_NOT_EXISTS);
         } catch (Exception e) {
-            log.error("error while deleting user {}", e.getCause(), e.getMessage());
             throw new IecoRuntimeException(
                     String.format("%s [ERROR] with [checkEmail]: %s", e.getMessage(), "deleting user"), e);
         }
@@ -662,9 +631,8 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             if (token != null && !token.isEmpty()) {
 
                 Optional<AdminDetails> adminDetails = adminDetailsRepository.findByToken(token);
-                if (adminDetails.isPresent()) {
-                    if (adminDetails.get().getToken().equals(token)) {
-                        System.out.println(token);
+                if (adminDetails.isPresent() && adminDetails.get().getToken().equals(token)) {
+                        log.info("token - {}", token);
                         Date date = new Date();
                         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy HH:mm");
                         String dateString = sdf.format(date);
@@ -695,7 +663,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
                                     user.getIsAccessProvided(), allowedOn, user.getAccessAllowedBy(), user.getCheck1(),
                                     user.getCheck2(), user.getInvitationURL()));
                         }
-                    }
                 }
 
             }
@@ -718,7 +685,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
         /**
          *  Fortify issue started, commented line 763 and added 764
          */
-        //return ThreadLocalRandom.current().nextLong(min, min * 10);
         return SecureRandom.getInstanceStrong().nextInt((int) (min * 10));
         /**
          *  Fortify issue ended
@@ -728,10 +694,8 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
 
     boolean validateToken(String email, String token) {
         Optional<AdminDetails> adminDetails = adminDetailsRepository.findByEmailId(email);
-        if (adminDetails.isPresent()) {
-            if (adminDetails.get().getToken().equals(token)) {
+        if (adminDetails.isPresent() && adminDetails.get().getToken().equals(token)) {
                 return true;
-            }
         }
         return false;
     }
@@ -741,10 +705,10 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
         List<WaitingListSettingsEntity> settings = waitingListSettingsRepository.findAll();
         if (settings.size() > 0) {
             log.info("settings {}", settings);
-            System.out.println(settings.get(0).getOffset());
+            Integer offset = settings.get(0).getOffset();
+            log.info("offSet - {}", offset);
             return settings.get(0).getOffset();
         }
-
         return 0;
     }
 
@@ -756,7 +720,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
         return patternToCheckInteger.matcher(strNum).matches();
     }
 
-    public void sendConfirmationMail(Integer waitingListumber, String refCode, String toEmail) throws Exception {
+    public void sendConfirmationMail(Integer waitingListumber, String refCode, String toEmail) {
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
         velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
         velocityEngine.init();
@@ -770,7 +734,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
         Resource resourceGif = new ClassPathResource("images/Cherry_Beta-mailer1_GIF.gif");
         Resource resourceSmile = new ClassPathResource("images/smile.png");
         Resource resourceThumb = new ClassPathResource("images/thumb.png");
-        Resource resourceCherry = new ClassPathResource("images/Cherry.png");
         Resource resourceFb = new ClassPathResource("images/fb.png");
         Resource resourceInsta = new ClassPathResource("images/insta.png");
         Resource resourceCherryImage = new ClassPathResource("images/Cherry-Img.png");
@@ -792,20 +755,11 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
         mimeMessageHelper.addInline("Cherry_Beta-mailer1_GIF", resourceGif);
         mimeMessageHelper.addInline("smile", resourceSmile);
         mimeMessageHelper.addInline("thumb", resourceThumb);
-        // mimeMessageHelper.addInline("cherry", resourceCherry);
         mimeMessageHelper.addInline("fb", resourceFb);
         mimeMessageHelper.addInline("insta", resourceInsta);
         mimeMessageHelper.addInline("cherryImage", resourceCherryImage);
         mailSender.send(mimeMessage);
         log.info("mail sent successfully for the user {}", toEmail);
-        /*
-         * if (!CollectionUtils.isEmpty(emailNotificationRequestVO.getAttachment())) {
-         * for (String fileName : emailNotificationRequestVO.getAttachment().keySet()) {
-         * byte[] fileContent =
-         * emailNotificationRequestVO.getAttachment().get(fileName);
-         * helper.addAttachment(fileName, new ByteArrayResource(fileContent)); } }
-         */
-
     }
 
     public ResponseObject debounceCheck(String email) {
@@ -814,7 +768,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://api.debounce.io/v1")
                     .queryParam("email", email).queryParam("api", "5fcb5938ca76a");
 
-            ResponseEntity<String> responseEntity = restUtility.get(builder.toUriString(), new HashMap(), String.class);
+            ResponseEntity<String> responseEntity = restUtility.get(builder.toUriString(), new HashMap<>(), String.class);
             log.info("debounce response {}", responseEntity.getBody());
             debounceResponse = mapper.readValue(responseEntity.getBody(), DebounceResponse.class);
             if (restUtility.checkStatus(responseEntity)) {
@@ -831,7 +785,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError(debounceResponse.getDebounce().getError(),
                     ResponseCodeEnum.DEBOUNCE_VERIFICATION_SUCCESS);
         } catch (Exception e) {
-            log.error("Exception while checking the debounce {}", e);
             throw new IecoRuntimeException(e.getMessage(), e.getCause());
         }
     }
@@ -886,8 +839,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             SMSResponseVO vo = transformer.smsftransformXMLToJSON(res);
             log.info("sms response {}", vo);
         } catch (JAXBException e) {
-            log.error("error occured while transforming xml to pojo {}", e);
-
+            log.error("error occured while transforming xml to pojo {}", e.getMessage());
         }
         return "SUCCESS";
     }
@@ -903,13 +855,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
         requestMap.add("grant_type", grantType);
         requestMap.add("client_id", clientId);
         requestMap.add("client_secret", clientSecret);
-        /*
-         * HttpEntity<MultiValueMap<String, String>> request = new
-         * HttpEntity<MultiValueMap<String, String>>(requestMap, headers);
-         * HttpEntity<String> amresponse = restTemplate.( accessTokenUrl,
-         * HttpMethod.POST, request, String.class);
-         * accessToken=mapper.readValue(amresponse.getBody(), AccessToken.class);
-         */
+
         accessToken = tokenClient.getToken(requestMap);
         log.info("Access token {}", accessToken.getAccess_token());
         return accessToken.getAccess_token();
@@ -967,7 +913,7 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
                         Integer minimizeValue = Integer.parseInt(minValue);
                         List<WaitingListDetailsEntity> waitingList = waitingListRepository.findByWaitingListNumberGreaterThanEqual(minimizeValue);
                         log.info("number of records fetched from db {}", waitingList.size());
-                        List<WaitingListDetailsEntity> updatedList = new ArrayList();
+                        List<WaitingListDetailsEntity> updatedList = new ArrayList<>();
                         for (WaitingListDetailsEntity userDetails : waitingList) {
                             userDetails.setWaitingListNumber(userDetails.getWaitingListNumber() - minimizeValue);
                             updatedList.add(userDetails);
@@ -984,7 +930,6 @@ public class WaitingListServiceImpl extends AbstractResponse implements WaitingL
             return responseError("Authentication is required to perform this action!",
                     ResponseCodeEnum.EMAIL_NOT_EXISTS);
         } catch (Exception e) {
-            log.error("Exception in reduceWaitingListNumber {}", e);
             throw new IecoRuntimeException(e.getMessage(), e.getCause());
         }
     }

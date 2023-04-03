@@ -114,10 +114,7 @@ public class TicketCreationController {
     public ResponseEntity<ResponseObject> createTicket(@RequestBody CleverTapRequestVO creq) {
 
         log.info("req from clever tap {}", creq);
-        // if
-        // (!(StringUtils.isEmpty(creq.getProfiles().get(0).getKeyValues().getCustomerId())
-        // && StringUtils.isEmpty(
-        // creq.getProfiles().get(0).getKeyValues().getProductCategory())) ) {
+
         if (new NullCheck<>(creq).allNotNull(creq.getProfiles().get(0).getKeyValues()).isNotNull()) {
 
             String isSmsEnabled = creq.getProfiles().get(0).getKeyValues().getEnableSMS();
@@ -159,7 +156,7 @@ public class TicketCreationController {
             req.setName(creq.getProfiles().get(0).getName());
             req.setEmail(creq.getProfiles().get(0).getEmail());
             req.setFromClevertap(true);
-            // req.setEmail(creq.getProfiles().get(0).getEmail());
+
             return new ResponseEntity<>(ticketCreationService.ticketCreate(req), HttpStatus.OK);
         }
         return new ResponseEntity<>(AbstractResponse.responseError(
@@ -192,7 +189,7 @@ public class TicketCreationController {
                         cReq.getProfiles().get(0).getKeyValues().getCustomerId());
             }
         } catch (Exception e) {
-            log.error("Exception in sendSMS - {} ", e);
+            log.error("Exception in sendSMS - {0}. ", e);
         }
     }
 
@@ -219,7 +216,6 @@ public class TicketCreationController {
                 log.info("whatsAppSms - {}", whatsAppSms);
                 String dataToEncodeAndEncrypt = "method=" + method + "&format=" + format + "&password="
                         + password + "&send_to=" + mobile + "&v=" + v + "&auth_scheme=" + auth_scheme
-//            + "&msg_type=" + msg_type + "&msg=" + whatsAppSms + "&preview_url= true";
                         + "&msg_type=" + msg_type + "&msg=" + whatsAppSms;
                 boolean isTemplate = creq.getProfiles().get(0).getKeyValues().isTemplate();
                 if(isTemplate){
@@ -238,7 +234,7 @@ public class TicketCreationController {
                         creq.getProfiles().get(0).getKeyValues().getCustomerId());
             }
         } catch (Exception e) {
-            log.error("Exception in pushWhatsAppMessage - {} ", e);
+            log.error("Exception in pushWhatsAppMessage - {0}. ", e);
         }
     }
 
@@ -269,7 +265,7 @@ public class TicketCreationController {
             // dynamically
             return messageTxt;
         } catch (Exception e) {
-            log.error("Exception in returnCommonMessage method - {}", e);
+            log.error("Exception in returnCommonMessage method - {0}.", e);
         }
         return messageTxt;
     }
@@ -279,26 +275,13 @@ public class TicketCreationController {
         try {
             result = value.replaceAll("%7B", "{").replaceAll("%7D", "}");
         } catch (Exception e) {
-            log.info("error in encoding encodeValue {}", e);
+            log.info("error in encoding encodeValue {0}.", e);
             result = value;
         }
         return result;
     }
 
-    private String encodeValue(String value) {
-        String result;
-        try {
-            result = URLEncoder.encode(value, "UTF-8").replaceAll("\\+", "%20").replaceAll("\\%21", "!")
-                    .replaceAll("\\%27", "'").replaceAll("\\%28", "(").replaceAll("\\%29", ")")
-                    .replaceAll("\\%7E", "~");
-        } catch (UnsupportedEncodingException e) {
 
-            log.info("error in encoding message {}", e);
-            result = value;
-        }
-
-        return result;
-    }
 
     private WhatsAppPushMessageResponse pushEncryptedMessage(String encrdata) {
         try {
@@ -306,7 +289,7 @@ public class TicketCreationController {
                     whatsAppClient.pushEncryptedMessage(userid, encrdata);
             return whatsAppPushMessageResponse;
         } catch (Exception exception) {
-            log.error("Exception in pushEncryptedMessage - {} ", exception);
+            log.error("Exception in pushEncryptedMessage - {0}. ", exception);
         }
         return null;
     }
@@ -315,7 +298,7 @@ public class TicketCreationController {
         try {
             whatsAppClient.optinEncrp(userid, encrdata);
         } catch (Exception e) {
-            log.error("Exception in optinEncrp - {} ", e);
+            log.error("Exception in optinEncrp - {0}. ", e);
         }
     }
 
@@ -327,7 +310,7 @@ public class TicketCreationController {
     // sendwhatsappmedia
 
     @PostMapping("/sendWhatsAppMedia")
-    ResponseEntity<String> sendMedia(@RequestBody @Valid WhatsAppMediaRequest creq) throws Exception {
+    public ResponseEntity<String> sendMedia(@RequestBody @Valid WhatsAppMediaRequest creq) {
         log.info("intializing sendWhatsAppMedia request {}", creq);
         try {
             CustomerDetailsResponse custDetailsRes = customerUtil.getCustomerId(creq);
@@ -351,21 +334,13 @@ public class TicketCreationController {
                     + "&msg_type=IMAGE&media_url=" + creq.getProfiles().get(0).getKeyValues().getMediaURL()
                     + "&caption=" + whatsAppSms + "&footer="
                     + creq.getProfiles().get(0).getKeyValues().getFooter();
-
-            /*
-             * String msg = "method=SendMediaMessage&format=json&password=" + password + "&send_to=" +
-             * mobile + "&v=" + v + "&auth_scheme=" + auth_scheme + "&isTemplate=true" +
-             * "&msg_type=IMAGE&media_url=" + whatsAppMediaRequest.getMediaURL() + "&caption=" +
-             * whatsAppMediaRequest.getWhatsAppSms();
-             */
-
-            System.out.println(msg);
+            log.info("messageValue {0}.", msg); //NOSONAR
             String enc = AESEncryption.encrypt(msg);
-            System.out.println(enc);
+            log.info("encryptValue of messages {0}.", enc); //NOSONAR
             WhatsAppPushMessageResponse whatsAppPushMessageResponse = this.pushEncryptedMessage(enc);
             log.info("whatsAppPushMessageResponse res {}", whatsAppPushMessageResponse);
         } catch (Exception e) {
-            log.error("Exception in sendMedia - {} ", e);
+            log.error("Exception in sendMedia - {0}.", e);
             e.printStackTrace();
         }
         return new ResponseEntity<>("success", HttpStatus.OK);
@@ -400,7 +375,7 @@ public class TicketCreationController {
             // dynamically
             return messageTxt;
         } catch (Exception e) {
-            log.error("Exception in returnCommonMessage method - {}", e);
+            log.error("Exception in returnCommonMessage method - {0}.", e);
         }
         return messageTxt;
     }

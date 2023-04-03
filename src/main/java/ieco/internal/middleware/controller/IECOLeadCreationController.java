@@ -22,9 +22,12 @@ public class IECOLeadCreationController {
 	
 	@Autowired
 	private DeskContactCreationService DeskContactCreationService;
-	
+	/**
+	 * SonarQube issue:
+	 * made "leadCreate" method as public
+	 */
 	@PostMapping("/zoho/contacts")
-	ZohoContactCreationResponse leadCreate(@RequestBody @Valid IECOLeadCreationRequest iecoLeadCreationRequest ){
+	public ZohoContactCreationResponse leadCreate(@RequestBody @Valid IECOLeadCreationRequest iecoLeadCreationRequest ){
 		if(isZohoEnable) {
 			return DeskContactCreationService.contactCreation(iecoLeadCreationRequest);
 		} else {

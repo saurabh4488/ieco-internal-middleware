@@ -53,9 +53,9 @@ public class AESCBCPKCS5Encryption {
     String str ="{\"Login_ID\": \"ZOHO\",\"Login_Pwd\": \"Wk9ITzEyMw==\",\"Client_IP\": \"\",\"Channel_ID\": \"\"}";
     String key ="6143a9c607a441979dbf5d6f841d20f4";
     String enc = encrypt(str, key);
-    System.out.println(enc);
-    /*String dec = decrypt("IiJIj6Mxfk6CCAkvB8k1ngZ35HlvQl9mjMAxZBKjKCcsepEyOU44/OCojX+WY2X6xgnCXMggrFizbmxJSgf9ww5gKApDXs/BA0xMLJE5KfpnHp0SSXcnFqn8TqWIJX0+PQ/EAyuPXas3ClQ+ouyehWsn5psJlK4QsHeA3/gVrNEHwoW+o0qTbcSB7MDFIl6U7B7ZrEZV7zReUOpUwkk82YuNKMc+04bpMtZxPw0M9kjTj+mjKHRMKlpdJpF4RyYg2waYy4LysrqzY81l647BimfR5BlKOTPororkefYbSWxW7lSmqRAVgA59Whx3z7i/tSyqjDwemsyVtfOwOl1om3Q7dV9wywFUh/5MovOuWqdB2pgVk2rX1PHgemFl3jj2jYhVaQtZiT24xAUO6L5DALn/LjI6QHkYCvnpXWg6Htp+JkzP4UzXYgsLKVoK5rUH7Bl1PVJ2ssd+tsv++Y5SCuob08zAXD0IdcTlGB09cSKpiyvNw3MkSJmWaKrfvUiu/3V3zldwlbPYt5N/WgqE7H98Y6bfcCyTFBqprjgxrog=", key);
+    System.out.println(enc); //NOSONAR
+    /*String dec = decrypt("IiJIj6Mxfk6CCAkvB8k1ngZ35HlvQl9mjMAxZBKjKCcsepEyOU44/OCojX+WY2X6xgnCXMggrFizbmxJSgf9ww5gKApDXs/BA0xMLJE5KfpnHp0SSXcnFqn8TqWIJX0+PQ/EAyuPXas3ClQ+ouyehWsn5psJlK4QsHeA3/gVrNEHwoW+o0qTbcSB7MDFIl6U7B7ZrEZV7zReUOpUwkk82YuNKMc+04bpMtZxPw0M9kjTj+mjKHRMKlpdJpF4RyYg2waYy4LysrqzY81l647BimfR5BlKOTPororkefYbSWxW7lSmqRAVgA59Whx3z7i/tSyqjDwemsyVtfOwOl1om3Q7dV9wywFUh/5MovOuWqdB2pgVk2rX1PHgemFl3jj2jYhVaQtZiT24xAUO6L5DALn/LjI6QHkYCvnpXWg6Htp+JkzP4UzXYgsLKVoK5rUH7Bl1PVJ2ssd+tsv++Y5SCuob08zAXD0IdcTlGB09cSKpiyvNw3MkSJmWaKrfvUiu/3V3zldwlbPYt5N/WgqE7H98Y6bfcCyTFBqprjgxrog=", key); //NOSONAR
 
-System.out.println(dec);*/
+    System.out.println(dec);*/ //NOSONAR
   }
 }

@@ -52,54 +52,6 @@ public class CommonUtils {
      */
     private static SecureRandom secureRandom = new SecureRandom();
 
-    /**
-     * Create or update transaction data customer transaction details response.
-     *
-     * @param status            the status
-     * @param transactionTypeId the transaction type id
-     * @param transactionId     the transaction id
-     * @return the customer transaction details response
-     */
-	/*public static CustomerTransactionDetailsResponse createOrUpdateTransactionData(CommonStatusEnum status,
-			Integer transactionTypeId, String transactionId) {
-		return CustomerTransactionDetailsResponse.builder().status(status.getValue())
-				.transactionId(new NullCheck<>(transactionId).isNull() ? UUID.randomUUID().toString() : transactionId)
-				.transTypeId(transactionTypeId).build();
-	}*/
-
-    /**
-     * Decrypt front end password string.
-     *
-     * @param encryptedText the encrypted text
-     * @return the string
-     */
-   /* public static String decryptFrontEndPassword(String encryptedText) {
-        LOGGER.info("(decryptFrontEndPassword) Decrypt Front End Password started with Encrypted Text: {}",
-                encryptedText);
-        if (StringUtils.isEmpty(encryptedText)) {
-            return encryptedText;
-        }
-        Security.addProvider(new BouncyCastleProvider());
-        String text = null;
-        try (PemReader pemReader = new PemReader(
-                new InputStreamReader(new ClassPathResource("security/private_key.pem").getInputStream()))) {
-            KeyFactory factory = KeyFactory.getInstance("RSA", "BC");
-            byte[] content = pemReader.readPemObject().getContent();
-            PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(content);
-            PrivateKey privateKey = factory.generatePrivate(privateKeySpec);
-            final Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");// "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING");
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] cipherText = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
-            text = new String(cipherText, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            LOGGER.error(
-                    "(decryptFrontEndPassword) Decrypt Front End Password started with Encrypted Text: {} has error: {}",
-                    encryptedText, e.getMessage());
-        }
-        LOGGER.info("(decryptFrontEndPassword) Decrypt Front End Password ended with Encrypted Text: {}",
-                encryptedText);
-        return text;
-    }*/
 
     /**
      * Gets date by minutes.
@@ -607,15 +559,7 @@ public class CommonUtils {
      */
     private static <T> void setAndUpdateFieldDynamically(Field field, T upComingObject, String delimiter,
                                                          Integer intData) throws IllegalAccessException, InstantiationException {
-        boolean accessible = field.isAccessible();
-        /** Fortify issue started
-         * Commented line 649  added line 650
-         */
-        //field.setAccessible(true);
         ReflectionUtils.makeAccessible(field);
-        /**
-         *Fortify issue ended
-         */
         if (field.getType().toString().contains("String")) {
             if (new NullCheck<>(field.get(upComingObject)).isNull()) {
                 field.set(upComingObject, delimiter);
@@ -624,12 +568,7 @@ public class CommonUtils {
             if (new NullCheck<>(field.get(upComingObject)).isNull()) {
                 field.set(upComingObject, intData);
             }
-            /**Fortify issue started commented line 664 nd added line 665
-             */
-            // field.setAccessible(accessible);
             ReflectionUtils.makeAccessible(field);
-            /**Fortify issue ended
-             */
         } else if (field.getType().toString().contains("Date") || field.getType().toString().contains("date")
                 || field.getType().toString().contains("Long") || field.getType().toString().contains("long")
                 || field.getType().toString().contains("BigDecimal") || field.getType().toString().contains("Short")
@@ -643,14 +582,7 @@ public class CommonUtils {
             }
             convertObjectFieldsFromNullToSpecifiedDelimiter(field.get(upComingObject), delimiter, intData);
         }
-        /**Fortify issue started
-         *Commented line 684 and added line 685
-         */
-        //field.setAccessible(accessible);
         ReflectionUtils.makeAccessible(field);
-        /**
-         Fortify issue ended
-         */
     }
 
     /**

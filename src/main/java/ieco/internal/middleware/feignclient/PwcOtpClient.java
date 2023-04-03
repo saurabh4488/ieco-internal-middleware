@@ -19,14 +19,4 @@ public interface PwcOtpClient {
 	
 	@PostMapping("/v1/otp/resend")
 	ResponseEntity<ResponseObject> otpResend(@RequestBody OtpRequest req);
-	
-	/**
-	 * local testing purpose
-	 */
-	
-	/*@PostMapping("/v1/customers/customerDetails")
-	ResponseEntity<CustomerDetailsResponse> getCustomerDetails(@RequestBody CustomerDetailsRequest customerDetailsRequest);
-
-	@PostMapping("/v1/customers/initiatetransaction")
-	ResponseEntity<ResponseObject> initiateTransaction(@RequestBody InitiateTransactionRequest req);*/
 }

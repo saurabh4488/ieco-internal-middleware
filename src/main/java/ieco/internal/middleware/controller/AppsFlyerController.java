@@ -51,6 +51,7 @@ public class AppsFlyerController {
     @PostMapping(value = "/appsFlyer/inAppEvents")
     public ResponseEntity<ResponseObject> inAppEvents(@RequestBody AppsFlyerRequest appsFlyerRequest, @RequestHeader(value = "platform", required = false) String platform) {
         try{
+            String restCall=null;
             log.info("Start of inAppEvents");
             log.info("appsFlyerRequest - {} - platform = {}", appsFlyerRequest,platform);
             ResponseObject responseObject = new ResponseObject();
@@ -68,7 +69,18 @@ public class AppsFlyerController {
                 httpHeaders.add("authentication", dev_key_placeholder);
                 ResponseEntity<String> response = this.restTemplate.postForEntity(appsflyer_inAppEvents_url+appId, new HttpEntity<>(appsFlyerRequest, httpHeaders), String.class);
                 HttpStatus status = response.getStatusCode();
-                String restCall = response.getBody().toUpperCase();
+                /**
+                 * SonarQube issue start : // String restCall = response.getBody().toUpperCase();
+                 */
+                String body = response.getBody();
+                if (body!=null){
+                    restCall=body.toUpperCase();
+                }
+
+                /**
+                 * SonarQube issue end
+                 */
+
                 log.info("reponse status : {} - platform - {} - appId = {} - event_name = {} - customer_id = {}", status,platform,appId,appsFlyerRequest.getEventName(),appsFlyerRequest.getCustomer_user_id());
                 log.info("reponse restCall : {}- platform - {} - appId - {}", restCall,platform,appId);
                 responseObject.setTimeStamp(System.currentTimeMillis());
@@ -84,7 +96,7 @@ public class AppsFlyerController {
             log.info("End of inAppEvents");
             return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }catch (Exception e){
-            log.error("Exception in inAppEvents - {}",e);
+            log.error("Exception in inAppEvents {0}.", e); // sonar issue changed {} to {0}.
         }
         return new ResponseEntity<>(new ResponseObject(), HttpStatus.OK);
     }
@@ -95,12 +107,5 @@ public class AppsFlyerController {
         return new ResponseEntity<>(appsFlyerService.pushApIService(appsFlyerPushRequest), HttpStatus.OK);
     }
 
-    private void setRestTemplateResponseType(){
-        List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
-        messageConverters.add(converter);
-        this.restTemplate.setMessageConverters(messageConverters);
-    }
 
 }

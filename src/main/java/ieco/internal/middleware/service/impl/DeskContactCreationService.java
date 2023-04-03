@@ -22,10 +22,6 @@ public class DeskContactCreationService {
 	@Value("${orgId}")
 	private String orgId;
 
-	/*
-	 * @Retryable(value = { Exception.class }, maxAttempts = 4, backoff
-	 * = @Backoff(delay = 200, multiplier = 2, maxDelay = 600))
-	 */
 	public ZohoContactCreationResponse contactCreationBk(IECOLeadCreationRequest request) {
 
 		org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass());
@@ -47,7 +43,6 @@ public class DeskContactCreationService {
 			log.info("Dedupe check for before creating contact at zoho for email {} {}",
 					searchContactRes.getStatusCodeValue(), request.getEmail());
 			ContactDetailsResponse contactDetails;
-			// contact not found and otp verified, creating user in zoho
 			if (searchContactRes.getStatusCodeValue() == 204
 					&& request.getStage().equalsIgnoreCase(ZohoLeadStage.OTP_VERIFIED.getValue())) {
 
@@ -63,7 +58,6 @@ public class DeskContactCreationService {
 				log.info("ZohoLeadCreationResponse {}", res);
 				res.setStatus("Success");
 				return res;
-				// contact found and registration is success, updating user in zoho
 			}else if (searchContactRes.getStatusCodeValue() == 200
 					&& request.getStage().equalsIgnoreCase(ZohoLeadStage.OTP_VERIFIED.getValue())) {
 
@@ -80,7 +74,6 @@ public class DeskContactCreationService {
 				log.info("ZohoLeadCreationResponse {}", res);
 				res.setStatus("Success");
 				return res;
-				// contact found and registration is success, updating user in zoho
 			}
 			
 			
@@ -106,7 +99,6 @@ public class DeskContactCreationService {
 				log.info("ZohoContactCreationResponse for the email {} {}", request.getEmail(), res);
 				res.setStatus("Success");
 				return res;
-				// contact not found and registration is success
 			} else if (searchContactRes.getStatusCodeValue() == 204
 					&& request.getStage().equalsIgnoreCase("REGISTRATION_SUCCESSFUL")) {
 				log.info("Unable to convert to contact as user doesn't existed in zoho as a lead for the email {}",
@@ -131,19 +123,6 @@ public class DeskContactCreationService {
 								.cf_utm_medium(cf.getCf_utm_medium()).cf_utm_source(cf.getCf_utm_source())
 								.cf_utm_term(cf.getCf_utm_term()).cf_lead_verified("Verified")
 								.cf_environment(request.getEnvironment()).build();
-						/*
-						 * CompletableFuture.runAsync(new Runnable() {
-						 * 
-						 * @Override public void run() { try {
-						 * log.info("lead ceration... updating details in db for the user {}",
-						 * request.getEmail()); updateDetailsinDB(request);
-						 * 
-						 * } catch (Exception e) {
-						 * log.error("error in updating the details for the user {}", e); // TODO
-						 * Auto-generated catch block e.printStackTrace(); }
-						 * 
-						 * } });
-						 */
 
 						DeskContactCreationRequest ccrequest = DeskContactCreationRequest.builder()
 								.email(request.getEmail()).firstName(request.getFirstName())
@@ -155,7 +134,6 @@ public class DeskContactCreationService {
 						res.setStatus("Success");
 						return res;
 					}
-					// }
 					if (searchContactRes.getBody().getContactResponse().get(0).getType().equalsIgnoreCase("Lead")) {
 
 						DeskContactCreationCustomFields deskContactCreationCustomFields = DeskContactCreationCustomFields
@@ -213,8 +191,8 @@ public class DeskContactCreationService {
 			return res;
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.info("Contact creation Failed for ieco {}", request);
-			log.error("Exception in contactCreation {}", e);
+			log.info("Contact creation Failed for ieco - {}", request);
+			log.error("Exception in contactCreation - {}", e.getMessage());
 			response = new ZohoContactCreationResponse();
 			response.setStatus("Failed");
 			response.setErrMessage(e.getMessage());
@@ -241,7 +219,7 @@ public class DeskContactCreationService {
 			ResponseEntity<ContactDetailsResponse> searchContactRes = zohoClient
 					.searchContact("email" + ":" + request.getEmail());
 			log.info("contactCreation--Searching contact response in zoho :{}", searchContactRes);
-			log.info("Dedupe check for before creating contact at zoho for email {} {}",
+			log.info("Dedupe check for before creating contact at zoho for email {0} {1}.",
 					searchContactRes.getStatusCodeValue(), request.getEmail());
 			ContactDetailsResponse contactDetails;
 
@@ -302,64 +280,26 @@ public class DeskContactCreationService {
 						res.setStatus("Success");
 						return res;
 					}
-					/*
-					 * if
-					 * (request.getStage().equalsIgnoreCase(ZohoLeadStage.OTP_VERIFIED.getValue()))
-					 * { log.info("Contact details in registration {}",
-					 * searchContactRes.getBody().toString());
-					 * 
-					 * DeskContactCreationCustomFields cf =
-					 * searchContactRes.getBody().getContactResponse().get(0).getCf(); if
-					 * (searchContactRes.getBody().getContactResponse().get(0).getType() != null) {
-					 * if (searchContactRes.getBody().getContactResponse().get(0).getType().
-					 * equalsIgnoreCase("Lead") &&
-					 * searchContactRes.getBody().getContactResponse().get(0).getCf().
-					 * getCf_utm_source() != null) {
-					 * 
-					 * DeskContactCreationCustomFields deskContactCreationCustomFields =
-					 * DeskContactCreationCustomFields
-					 * .builder().cf_lead_reference_id(cf.getCf_lead_reference_id()).cf_utm_campaign
-					 * (cf.getCf_utm_campaign()).cf_utm_content(cf.getCf_utm_content())
-					 * .cf_utm_medium(cf.getCf_utm_medium()).cf_utm_source(cf.getCf_utm_source()).
-					 * cf_utm_term(cf.getCf_utm_term()).cf_lead_verified("Verified")
-					 * .cf_environment(request.getEnvironment()).build(); DeskContactCreationRequest
-					 * ccrequest = DeskContactCreationRequest.builder().email(request.getEmail())
-					 * .firstName(request.getFirstName()).lastName(request.getLastName()).mobile(
-					 * request.getMobile())
-					 * .type("Lead").cf(deskContactCreationCustomFields).build();
-					 * 
-					 * ZohoContactCreationResponse res = zohoClient.contactUpdate(ccrequest,
-					 * searchContactRes.getBody().getContactResponse().get(0).getId());
-					 * log.info("ZohoLeadCreationResponse {}", res); res.setStatus("Success");
-					 * return res; } }
-					 * 
-					 * }
-					 */
 
-					if (request.getStage().equalsIgnoreCase(ZohoLeadStage.DISTRIBUTION.getValue())) {
-						if (searchContactRes.getBody().getContactResponse().get(0).getType() != null) {
-							if (searchContactRes.getBody().getContactResponse().get(0).getType()
-									.equalsIgnoreCase("Contact")) {
-								DeskContactCreationCustomFields deskContactCreationCustomFields = DeskContactCreationCustomFields
-										.builder()
-										.cf_customer_type(request.isDistributionFlag() ? "Distribution" : "Advisory")
-										.build();
+					if (request.getStage().equalsIgnoreCase(ZohoLeadStage.DISTRIBUTION.getValue()) && searchContactRes.getBody().getContactResponse().get(0).getType() != null && searchContactRes.getBody().getContactResponse().get(0).getType()
+							.equalsIgnoreCase("Contact")) {
 
-								DeskContactCreationRequest ccrequest = DeskContactCreationRequest.builder()
-										.cf(deskContactCreationCustomFields).build();
+						DeskContactCreationCustomFields deskContactCreationCustomFields = DeskContactCreationCustomFields
+								.builder()
+								.cf_customer_type(request.isDistributionFlag() ? "Distribution" : "Advisory")
+								.build();
 
-								ZohoContactCreationResponse res = zohoClient.contactUpdate(ccrequest,
-										searchContactRes.getBody().getContactResponse().get(0).getId());
-								log.info("ZohocontactupdateResponse {}", res);
-								res.setStatus("Success");
-								return res;
-							}
-						}
+						DeskContactCreationRequest ccrequest = DeskContactCreationRequest.builder()
+								.cf(deskContactCreationCustomFields).build();
+
+						ZohoContactCreationResponse res = zohoClient.contactUpdate(ccrequest,
+								searchContactRes.getBody().getContactResponse().get(0).getId());
+						log.info("ZohocontactupdateResponse {}", res);
+						res.setStatus("Success");
+						return res;
 					}
-					if (request.getStage().equalsIgnoreCase(ZohoLeadStage.CRN_CLIENT_CODE_CREATED.getValue())) {
-						if (searchContactRes.getBody().getContactResponse().get(0).getType() != null) {
-							if (searchContactRes.getBody().getContactResponse().get(0).getType()
-									.equalsIgnoreCase("Contact")) {
+					if (request.getStage().equalsIgnoreCase(ZohoLeadStage.CRN_CLIENT_CODE_CREATED.getValue()) && searchContactRes.getBody().getContactResponse().get(0).getType() != null && searchContactRes.getBody().getContactResponse().get(0).getType()
+							.equalsIgnoreCase("Contact")) {
 								DeskContactCreationCustomFields deskContactCreationCustomFields = DeskContactCreationCustomFields
 										.builder().cf_crn_present(request.getCrnCreated())
 										.cf_client_code_present(request.getClientCodeCreated())
@@ -374,10 +314,7 @@ public class DeskContactCreationService {
 								log.info("ZohocontactupdateResponse {}", res);
 								res.setStatus("Success");
 								return res;
-							}
-						}
 					}
-					// }
 					if (searchContactRes.getBody().getContactResponse().get(0).getType() != null) {
 						if (searchContactRes.getBody().getContactResponse().get(0).getType().equalsIgnoreCase("Lead")) {
 
@@ -425,7 +362,6 @@ public class DeskContactCreationService {
 					res.setErrMessage("Contact Stage cannot be Empty");
 					return res;
 				}
-
 			}
 
 			ZohoContactCreationResponse res = new ZohoContactCreationResponse();
@@ -434,8 +370,8 @@ public class DeskContactCreationService {
 			return res;
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.info("Contact creation Failed for ieco {}", request);
-			log.error("Exception in contactCreation {}", e);
+			log.info("Contact creation Failed for ieco - {0}", request);
+			log.error("Exception in contactCreation - {0}", e);
 			response = new ZohoContactCreationResponse();
 			response.setStatus("Failed");
 			response.setErrMessage(e.getMessage());
@@ -443,15 +379,4 @@ public class DeskContactCreationService {
 
 		return null;
 	}
-
-	/*
-	 * private void updateDetailsinDB(IECOLeadCreationRequest req) {
-	 * 
-	 * UsersFromSocialMedia user =
-	 * socialMediaUsersRepository.findByEmail(req.getEmail());
-	 * user.setLeadVerified("Y"); socialMediaUsersRepository.save(user); // TODO
-	 * Auto-generated method stub
-	 * 
-	 * }
-	 */
 }

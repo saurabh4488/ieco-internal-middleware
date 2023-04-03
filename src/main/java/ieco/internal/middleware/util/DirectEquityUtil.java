@@ -32,7 +32,6 @@ public class DirectEquityUtil extends AbstractResponse {
      * The log.
      */
     private Logger log = LoggerFactory.getLogger(DirectEquityUtil.class);
-    private Pattern patternToCheckInteger = Pattern.compile("^\\d+$");
     @Value("${ipo.autologin.weblinkHost}")
     private String weblinkHost;
     /**

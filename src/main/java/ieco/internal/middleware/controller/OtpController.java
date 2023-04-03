@@ -28,8 +28,6 @@ import java.util.Map;
 //@CrossOrigin(origins = {"https://iecouat.kotakcherry.com", "http://localhost:4200"})
 @RestController
 public class OtpController {
-
-
   private org.slf4j.Logger log = LoggerFactory.getLogger(OtpController.class);
 
   @Autowired
@@ -79,9 +77,6 @@ public class OtpController {
       middlewareRequest.setSatisfied(false);
       return otpService.processRequest(middlewareRequest);
     }
-
-
-
   }
 
   @PostMapping(value = "/zoho/ticket/attachment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -104,12 +99,9 @@ public class OtpController {
               .subCategory(request.getSubCategory()).build());
     } else {
       ResponseObject res = new ResponseObject();
-
       res.setMessage("created successfully");
       res.setStatus("200 OK");
       res.setResponseCode("TP002");
-      // res.setTicketId(String.valueOf(request.getTicketId()));
-
       return (T) res;
     }
   }
